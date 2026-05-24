@@ -1,13 +1,13 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="餐饮记账">
-<title>餐饮成本记账</title>
+<meta name="apple-mobile-web-app-title" content="Meal Tracker">
+<title>Meal Cost Tracker</title>
 <style>
-  :root{--bg:#f5f4f0;--surface:#fff;--surface2:#f0efe9;--text:#1a1916;--text2:#6b6a64;--text3:#a8a79f;--accent:#2d6a4f;--accent-bg:#e8f4ee;--accent-text:#1a4a33;--warn:#92400e;--warn-bg:#fef3c7;--danger:#991b1b;--danger-bg:#fee2e2;--border:rgba(0,0,0,0.08);--border2:rgba(0,0,0,0.14);--radius:14px;--radius-sm:8px;--font:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+  :root{--bg:#f5f4f0;--surface:#fff;--surface2:#f0efe9;--text:#1a1916;--text2:#6b6a64;--text3:#a8a79f;--accent:#2d6a4f;--accent-bg:#e8f4ee;--accent-text:#1a4a33;--warn:#92400e;--warn-bg:#fef3c7;--danger:#991b1b;--danger-bg:#fee2e2;--border:rgba(0,0,0,0.08);--border2:rgba(0,0,0,0.14);--radius:14px;--radius-sm:8px;--font:"PingFang SC","Hiragino Sans GB","SF Pro Text","Microsoft YaHei",sans-serif}
   @media(prefers-color-scheme:dark){:root{--bg:#111110;--surface:#1c1c1a;--surface2:#252522;--text:#f0efe9;--text2:#a8a79f;--text3:#5a5a54;--accent:#4ade80;--accent-bg:#14391f;--accent-text:#86efac;--warn:#fbbf24;--warn-bg:#2d1f00;--danger:#f87171;--danger-bg:#2d0a0a;--border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.14)}}
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
   html,body{height:100%;background:var(--bg);font-family:var(--font);color:var(--text)}
@@ -25,8 +25,9 @@
   .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
   .form-full{margin-bottom:10px}
   .form-label{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px}
-  input[type=text],input[type=number],input[type=date],select{width:100%;padding:10px 12px;font-size:15px;font-family:var(--font);background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);outline:none;-webkit-appearance:none;appearance:none}
-  input:focus,select:focus{border-color:var(--accent)}
+  input[type=text],input[type=number],input[type=date],select,textarea{width:100%;padding:10px 12px;font-size:15px;font-family:var(--font);background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);outline:none;-webkit-appearance:none;appearance:none}
+  textarea{resize:none;line-height:1.5}
+  input:focus,select:focus,textarea:focus{border-color:var(--accent)}
   .btn{width:100%;padding:12px;font-size:15px;font-weight:600;font-family:var(--font);border-radius:var(--radius-sm);border:1.5px solid var(--border2);background:var(--surface);color:var(--text);cursor:pointer;margin-top:4px}
   .btn:active{opacity:0.7}
   .btn-primary{background:var(--accent-bg);border-color:var(--accent);color:var(--accent-text)}
@@ -34,15 +35,12 @@
   .btn-danger-sm{padding:5px 10px;font-size:12px;width:auto;margin-top:0;border-color:var(--danger-bg);background:var(--danger-bg);color:var(--danger)}
   .btn-copy-sm{padding:5px 10px;font-size:12px;width:auto;margin-top:0;border-color:var(--accent-bg);background:var(--accent-bg);color:var(--accent-text)}
   .btn-scan{display:flex;align-items:center;justify-content:center;gap:8px;background:var(--surface2);border:1.5px dashed var(--accent);color:var(--accent-text);font-weight:600;padding:13px;border-radius:var(--radius-sm);width:100%;font-size:15px;cursor:pointer;margin-bottom:10px;font-family:var(--font)}
-  /* cost period tabs */
   .period-tabs{display:flex;gap:6px;margin-bottom:12px}
   .period-tab{flex:1;padding:7px 0;font-size:12px;font-weight:600;text-align:center;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--surface);color:var(--text2);cursor:pointer;font-family:var(--font)}
   .period-tab.active{background:var(--accent-bg);border-color:var(--accent);color:var(--accent-text)}
-  /* date nav */
   .date-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
   .date-nav-btn{padding:6px 14px;font-size:13px;font-family:var(--font);border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--surface);color:var(--text2);cursor:pointer}
   .date-nav-label{font-size:14px;font-weight:600;color:var(--text)}
-  /* stat grid */
   .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
   .stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px}
   .stat-label{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px}
@@ -58,7 +56,7 @@
   .row-meta{font-size:12px;color:var(--text3);margin-top:2px}
   .row-sub{font-size:12px;color:var(--text2);margin-top:2px;line-height:1.4}
   .bar-bg{height:6px;background:var(--surface2);border-radius:3px;overflow:hidden;margin:6px 0 2px}
-  .bar-fill{height:100%;border-radius:3px;transition:width 0.3s}
+  .bar-fill{height:100%;border-radius:3px}
   .nut-row{margin-bottom:10px}
   .nut-top{display:flex;justify-content:space-between;align-items:baseline;font-size:12px;color:var(--text2);margin-bottom:2px}
   .nut-pct{font-size:11px;color:var(--text3)}
@@ -102,26 +100,34 @@
   .img-preview-wrap{margin-bottom:10px;position:relative}
   .img-preview{width:100%;height:100px;object-fit:cover;border-radius:var(--radius-sm);border:1px solid var(--border);display:block}
   .img-remove{position:absolute;top:6px;right:6px;background:rgba(0,0,0,0.5);border:none;border-radius:50%;width:24px;height:24px;color:white;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center}
-  .day-meals-group{margin-bottom:4px}
-  .day-header{font-size:12px;font-weight:700;color:var(--text3);padding:8px 0 4px;text-transform:uppercase;letter-spacing:0.5px;border-bottom:1px solid var(--border);margin-bottom:4px}
+  /* manual entry toggle */
+  .mode-toggle{display:flex;gap:6px;margin-bottom:12px}
+  .mode-btn{flex:1;padding:9px 0;font-size:13px;font-weight:600;text-align:center;border:1.5px solid var(--border);border-radius:10px;background:var(--surface);color:var(--text2);cursor:pointer;font-family:var(--font)}
+  .mode-btn.active{background:var(--accent-bg);border-color:var(--accent);color:var(--accent-text)}
+  .manual-entry{background:var(--surface2);border-radius:var(--radius-sm);padding:12px;margin-bottom:10px;border:1px solid var(--border)}
+  .manual-tag{display:inline-block;font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;background:var(--warn-bg);color:var(--warn);margin-bottom:6px}
+  /* cost summary table */
+  .summary-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border);font-size:14px}
+  .summary-row:last-child{border-bottom:none}
+  .summary-total{display:flex;justify-content:space-between;align-items:center;padding:10px 0 0;font-size:15px;font-weight:700;margin-top:4px;border-top:2px solid var(--border2)}
 </style>
 </head>
 <body>
-<div class="header"><h1>餐饮记账</h1><p>精准追踪每餐成本与营养</p></div>
+<div class="header"><h1>Meal Tracker</h1><p>Track costs & nutrition</p></div>
 <div class="tabs">
-  <button class="tab active" onclick="switchTab('inventory')">食材库</button>
-  <button class="tab" onclick="switchTab('meal')">记餐食</button>
-  <button class="tab" onclick="switchTab('stats')">统计</button>
+  <button class="tab active" onclick="switchTab('pantry')">Pantry</button>
+  <button class="tab" onclick="switchTab('meal')">Log Meal</button>
+  <button class="tab" onclick="switchTab('stats')">Stats</button>
 </div>
 <div class="content">
 
-  <!-- 食材库 -->
-  <div id="tab-inventory" class="section active">
+  <!-- PANTRY -->
+  <div id="tab-pantry" class="section active">
     <div class="card">
-      <div class="card-title">添加食材</div>
+      <div class="card-title">Add Ingredient</div>
       <button class="btn-scan" onclick="openScanner()">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><rect x="7" y="7" width="10" height="10" rx="1"/></svg>
-        扫描条形码自动填入
+        Scan barcode to auto-fill
       </button>
       <div id="fetch-status" class="fetch-status"></div>
       <div id="img-preview-wrap" class="img-preview-wrap" style="display:none">
@@ -130,96 +136,112 @@
       </div>
       <label class="img-upload-btn">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-        拍照或选择食材图片（可选）
+        Add photo (optional)
         <input type="file" id="ing-img-input" accept="image/*" onchange="previewImg(this)">
       </label>
-      <div class="form-full"><div class="form-label">食材名称</div><input type="text" id="ing-name" placeholder="例：鸡胸肉"></div>
+      <div class="form-full"><div class="form-label">Name (中文/English)</div><input type="text" id="ing-name" placeholder="e.g. 鸡胸肉 / Chicken breast"></div>
       <div class="form-grid">
-        <div><div class="form-label">购买量</div><input type="number" id="ing-qty" placeholder="500"></div>
-        <div><div class="form-label">单位</div><select id="ing-unit"><option>g</option><option>kg</option><option>ml</option><option>L</option><option>个</option><option>包</option><option>oz</option><option>lb</option></select></div>
+        <div><div class="form-label">Quantity</div><input type="number" id="ing-qty" placeholder="500"></div>
+        <div><div class="form-label">Unit</div><select id="ing-unit"><option>g</option><option>kg</option><option>ml</option><option>L</option><option>pc</option><option>pkg</option><option>oz</option><option>lb</option></select></div>
       </div>
-      <div class="form-full"><div class="form-label">花费 (USD $)</div><input type="number" id="ing-price" step="0.01" placeholder="5.99"></div>
-      <div class="form-label" style="margin-bottom:6px">营养数据基准</div>
+      <div class="form-full"><div class="form-label">Cost (USD $)</div><input type="number" id="ing-price" step="0.01" placeholder="5.99"></div>
+      <div class="form-label" style="margin-bottom:6px">Nutrition basis</div>
       <div class="basis-toggle">
-        <button class="basis-btn active" id="basis-100g" onclick="setBasis('per100g')">每 100g</button>
-        <button class="basis-btn" id="basis-unit" onclick="setBasis('perUnit')">每 1个/份</button>
+        <button class="basis-btn active" id="basis-100g" onclick="setBasis('per100g')">Per 100g</button>
+        <button class="basis-btn" id="basis-unit" onclick="setBasis('perUnit')">Per unit/serving</button>
       </div>
-      <div id="basis-hint" style="font-size:12px;color:var(--text3);margin-bottom:10px">适合蔬菜、肉类、液体等</div>
+      <div id="basis-hint" style="font-size:12px;color:var(--text3);margin-bottom:10px">For veggies, meat, liquids etc.</div>
       <div class="form-grid">
-        <div><div class="form-label">热量 (kcal)</div><input type="number" id="ing-cal" placeholder="165"></div>
-        <div><div class="form-label">碳水 (g)</div><input type="number" id="ing-carbs" placeholder="0"></div>
+        <div><div class="form-label">Calories (kcal)</div><input type="number" id="ing-cal" placeholder="165"></div>
+        <div><div class="form-label">Carbs (g)</div><input type="number" id="ing-carbs" placeholder="0"></div>
       </div>
       <div class="form-grid">
-        <div><div class="form-label">蛋白质 (g)</div><input type="number" id="ing-protein" placeholder="31"></div>
-        <div><div class="form-label">脂肪 (g)</div><input type="number" id="ing-fat" placeholder="3"></div>
+        <div><div class="form-label">Protein (g)</div><input type="number" id="ing-protein" placeholder="31"></div>
+        <div><div class="form-label">Fat (g)</div><input type="number" id="ing-fat" placeholder="3"></div>
       </div>
-      <button class="btn btn-primary" id="add-btn" onclick="addIngredient()">+ 添加到库存</button>
+      <button class="btn btn-primary" id="add-btn" onclick="addIngredient()">+ Add to Pantry</button>
     </div>
-    <div class="sec-label">当前库存</div>
+
+    <!-- Cost Summary -->
+    <div class="card" id="cost-summary-card">
+      <div class="card-title">Pantry Cost Summary</div>
+      <div id="cost-summary-list"></div>
+    </div>
+
+    <div class="sec-label">Current Stock</div>
     <div id="inventory-list"></div>
   </div>
 
-  <!-- 记餐食 -->
+  <!-- LOG MEAL -->
   <div id="tab-meal" class="section">
     <div class="card">
-      <div class="card-title">记录这餐</div>
-      <div class="form-full"><div class="form-label">餐食名称</div><input type="text" id="meal-name" placeholder="例：番茄鸡蛋炒饭"></div>
-      <div class="form-full"><div class="form-label">日期</div><input type="date" id="meal-date"></div>
+      <div class="card-title">Log a Meal</div>
+      <div class="form-full"><div class="form-label">Meal Name (中文/English)</div><input type="text" id="meal-name" placeholder="e.g. 番茄炒蛋 / Tomato egg stir-fry"></div>
+      <div class="form-full"><div class="form-label">Date</div><input type="date" id="meal-date"></div>
       <div class="divider"></div>
-      <div class="sec-label" style="margin-top:0">用了哪些食材</div>
-      <div id="used-ingredients"></div>
-      <button class="btn btn-sm" style="margin-bottom:14px" onclick="addUsedRow()">+ 添加食材</button>
-      <button class="btn btn-primary" onclick="saveMeal()">保存这餐 ✓</button>
+
+      <!-- Mode toggle: from pantry vs manual -->
+      <div class="form-label" style="margin-bottom:8px">Add items from:</div>
+      <div class="mode-toggle">
+        <button class="mode-btn active" id="mode-pantry" onclick="setMealMode('pantry')">My Pantry</button>
+        <button class="mode-btn" id="mode-manual" onclick="setMealMode('manual')">Manual Entry</button>
+      </div>
+
+      <!-- Pantry ingredients -->
+      <div id="pantry-items-section">
+        <div class="sec-label" style="margin-top:0">Ingredients from Pantry</div>
+        <div id="used-ingredients"></div>
+        <button class="btn btn-sm" style="margin-bottom:14px" onclick="addUsedRow()">+ Add ingredient</button>
+      </div>
+
+      <!-- Manual entry section -->
+      <div id="manual-items-section" style="display:none">
+        <div class="sec-label" style="margin-top:0">Manual Entry</div>
+        <div id="manual-entries"></div>
+        <button class="btn btn-sm" style="margin-bottom:14px" onclick="addManualRow()">+ Add item</button>
+      </div>
+
+      <button class="btn btn-primary" onclick="saveMeal()">Save Meal ✓</button>
     </div>
-    <div class="sec-label">最近记录</div>
+    <div class="sec-label">Recent Meals</div>
     <div id="meal-list"></div>
   </div>
 
-  <!-- 统计 -->
+  <!-- STATS -->
   <div id="tab-stats" class="section">
-    <!-- 费用统计 period tabs -->
     <div class="card">
-      <div class="card-title" style="margin-bottom:10px">花费统计</div>
+      <div class="card-title" style="margin-bottom:10px">Cost Summary</div>
       <div class="period-tabs">
-        <button class="period-tab active" id="pt-day" onclick="setPeriod('day')">今日</button>
-        <button class="period-tab" id="pt-week" onclick="setPeriod('week')">本周</button>
-        <button class="period-tab" id="pt-month" onclick="setPeriod('month')">本月</button>
-        <button class="period-tab" id="pt-all" onclick="setPeriod('all')">全部</button>
+        <button class="period-tab active" id="pt-day" onclick="setPeriod('day')">Today</button>
+        <button class="period-tab" id="pt-week" onclick="setPeriod('week')">Week</button>
+        <button class="period-tab" id="pt-month" onclick="setPeriod('month')">Month</button>
+        <button class="period-tab" id="pt-all" onclick="setPeriod('all')">All</button>
       </div>
       <div class="stat-grid" id="cost-stats"></div>
     </div>
-
-    <!-- 每日营养 -->
     <div class="card">
-      <div class="card-title" style="margin-bottom:10px">每日营养摄入</div>
+      <div class="card-title" style="margin-bottom:10px">Daily Nutrition</div>
       <div class="date-nav">
-        <button class="date-nav-btn" onclick="changeNutDay(-1)">‹ 前一天</button>
-        <span class="date-nav-label" id="nut-date-label">今天</span>
-        <button class="date-nav-btn" onclick="changeNutDay(1)">后一天 ›</button>
+        <button class="date-nav-btn" onclick="changeNutDay(-1)">‹ Prev</button>
+        <span class="date-nav-label" id="nut-date-label">Today</span>
+        <button class="date-nav-btn" onclick="changeNutDay(1)">Next ›</button>
       </div>
       <div id="daily-nutrition"></div>
     </div>
-
-    <!-- 每餐明细 -->
-    <div class="card">
-      <div class="card-title">每餐明细</div>
-      <div id="cost-breakdown"></div>
-    </div>
+    <div class="card"><div class="card-title">Meal Breakdown</div><div id="cost-breakdown"></div></div>
   </div>
-
 </div>
 
 <!-- scanner -->
 <div class="scanner-overlay" id="scanner-overlay">
   <div class="scanner-box">
     <video id="scanner-video" autoplay playsinline muted></video>
-    <div class="scanner-frame"></div>
-    <div class="scan-line"></div>
+    <div class="scanner-frame"></div><div class="scan-line"></div>
     <div class="c-tl"></div><div class="c-tr"></div><div class="c-bl"></div><div class="c-br"></div>
   </div>
-  <div class="scanner-hint">将条形码对准框内</div>
-  <div class="scanner-status" id="scanner-status">正在启动摄像头…</div>
-  <button class="scanner-close" onclick="closeScanner()">取消</button>
+  <div class="scanner-hint">Align barcode in frame</div>
+  <div class="scanner-status" id="scanner-status">Starting camera…</div>
+  <button class="scanner-close" onclick="closeScanner()">Cancel</button>
 </div>
 
 <script src="https://unpkg.com/@zxing/library@0.18.6/umd/index.min.js"></script>
@@ -227,33 +249,29 @@
 let ingredients=JSON.parse(localStorage.getItem("mc_ing")||"[]");
 let meals=JSON.parse(localStorage.getItem("mc_meals")||"[]");
 let usedRows=[];
+let manualRows=[];
 let codeReader=null,scanActive=false;
 let currentBasis="per100g";
 let pendingImg=null;
 let currentPeriod="day";
-let nutDateOffset=0; // 0=today, -1=yesterday, etc.
+let nutDateOffset=0;
+let mealMode="pantry";
 
 function persist(){
   try{localStorage.setItem("mc_ing",JSON.stringify(ingredients));localStorage.setItem("mc_meals",JSON.stringify(meals));}
-  catch(e){alert("存储空间不足，请删除一些图片后再试");}
+  catch(e){alert("Storage full. Delete some photos and try again.");}
 }
 
 function today(){return new Date().toISOString().split("T")[0];}
-function dateFromOffset(offset){
-  const d=new Date();d.setDate(d.getDate()+offset);
-  return d.toISOString().split("T")[0];
-}
-function fmtDate(d){
-  const[y,m,day]=d.split("-");
-  return `${m}月${day}日`;
-}
+function dateFromOffset(o){const d=new Date();d.setDate(d.getDate()+o);return d.toISOString().split("T")[0];}
+function fmtDate(d){const[y,m,day]=d.split("-");return m+"/"+day+"/"+y;}
 
 function switchTab(t){
-  document.querySelectorAll(".tab").forEach((b,i)=>b.classList.toggle("active",["inventory","meal","stats"][i]===t));
+  document.querySelectorAll(".tab").forEach((b,i)=>b.classList.toggle("active",["pantry","meal","stats"][i]===t));
   document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
   document.getElementById("tab-"+t).classList.add("active");
-  if(t==="inventory")renderInventory();
-  if(t==="meal"){renderUsedRows();renderMealList();}
+  if(t==="pantry"){renderInventory();renderCostSummary();}
+  if(t==="meal"){renderUsedRows();renderManualRows();renderMealList();}
   if(t==="stats")renderStats();
 }
 
@@ -261,7 +279,15 @@ function setBasis(b){
   currentBasis=b;
   document.getElementById("basis-100g").classList.toggle("active",b==="per100g");
   document.getElementById("basis-unit").classList.toggle("active",b==="perUnit");
-  document.getElementById("basis-hint").textContent=b==="per100g"?"适合蔬菜、肉类、液体等":"适合面包、鸡蛋、水果等按个数计算";
+  document.getElementById("basis-hint").textContent=b==="per100g"?"For veggies, meat, liquids etc.":"For bread, eggs, fruit etc.";
+}
+
+function setMealMode(m){
+  mealMode=m;
+  document.getElementById("mode-pantry").classList.toggle("active",m==="pantry");
+  document.getElementById("mode-manual").classList.toggle("active",m==="manual");
+  document.getElementById("pantry-items-section").style.display=m==="pantry"?"block":"none";
+  document.getElementById("manual-items-section").style.display=m==="manual"?"block":"none";
 }
 
 function compressImg(file,cb){
@@ -296,15 +322,15 @@ function removeImg(){
 
 async function openScanner(){
   document.getElementById("scanner-overlay").classList.add("active");
-  document.getElementById("scanner-status").textContent="正在启动摄像头…";
+  document.getElementById("scanner-status").textContent="Starting camera…";
   try{
-    if(typeof ZXing==="undefined"){document.getElementById("scanner-status").textContent="加载中…";await new Promise(r=>setTimeout(r,2000));}
+    if(typeof ZXing==="undefined"){document.getElementById("scanner-status").textContent="Loading…";await new Promise(r=>setTimeout(r,2000));}
     codeReader=new ZXing.BrowserMultiFormatReader();scanActive=true;
-    document.getElementById("scanner-status").textContent="对准条形码即可自动识别";
+    document.getElementById("scanner-status").textContent="Align barcode in frame";
     await codeReader.decodeFromVideoDevice(null,"scanner-video",(result,err)=>{
       if(result&&scanActive){scanActive=false;fetchProduct(result.getText());}
     });
-  }catch(e){document.getElementById("scanner-status").textContent="摄像头启动失败，请检查权限";}
+  }catch(e){document.getElementById("scanner-status").textContent="Camera failed. Check permissions.";}
 }
 
 function closeScanner(){
@@ -316,7 +342,7 @@ function closeScanner(){
 async function fetchProduct(barcode){
   closeScanner();
   const el=document.getElementById("fetch-status");
-  el.className="fetch-status visible";el.textContent="查询中…";
+  el.className="fetch-status visible";el.textContent="Looking up barcode…";
   try{
     const res=await fetch("https://world.openfoodfacts.org/api/v0/product/"+barcode+".json");
     const data=await res.json();
@@ -336,45 +362,63 @@ async function fetchProduct(barcode){
       if(fat)document.getElementById("ing-fat").value=fat;
       if(qty)document.getElementById("ing-qty").value=qty;
       if(imgUrl){pendingImg=imgUrl;document.getElementById("ing-img-preview").src=imgUrl;document.getElementById("img-preview-wrap").style.display="block";}
-      el.textContent="✓ 已填入："+(name||"未知")+"。请补充购买量和花费。";
-    }else{el.className="fetch-status visible error";el.textContent="未找到该条形码，请手动填写。";}
-  }catch(e){el.className="fetch-status visible error";el.textContent="查询失败，请检查网络。";}
+      el.textContent="✓ Found: "+(name||"Unknown")+". Add cost & quantity.";
+    }else{el.className="fetch-status visible error";el.textContent="Not found. Enter manually.";}
+  }catch(e){el.className="fetch-status visible error";el.textContent="Lookup failed. Check network.";}
 }
 
 function getEmoji(name){
   const n=(name||"").toLowerCase();
   if(/chicken|鸡/.test(n))return"🍗";if(/beef|牛/.test(n))return"🥩";if(/pork|猪/.test(n))return"🥓";
   if(/fish|鱼|salmon/.test(n))return"🐟";if(/egg|蛋/.test(n))return"🥚";if(/milk|奶/.test(n))return"🥛";
-  if(/rice|米饭/.test(n))return"🍚";if(/bread|面包|roll/.test(n))return"🍞";if(/spinach|菠菜/.test(n))return"🥬";
+  if(/rice|米饭/.test(n))return"🍚";if(/bread|面包|roll|bun/.test(n))return"🍞";if(/spinach|菠菜/.test(n))return"🥬";
   if(/tomato|番茄|西红柿/.test(n))return"🍅";if(/banana|香蕉/.test(n))return"🍌";if(/apple|苹果/.test(n))return"🍎";
   if(/cherry|樱桃/.test(n))return"🍒";if(/berry|莓|blueberr/.test(n))return"🫐";
   if(/cheese|奶酪|burrata|mozzarella/.test(n))return"🧀";if(/cookie|饼干|waffle/.test(n))return"🍪";
   if(/onion|葱|洋葱/.test(n))return"🧅";if(/kimchi|泡菜/.test(n))return"🥬";if(/tofu|豆腐/.test(n))return"🫘";
-  if(/asparagus|芦笋/.test(n))return"🌿";if(/oil|油/.test(n))return"🫙";if(/sauce|酱/.test(n))return"🫙";
-  if(/cream|奶油/.test(n))return"🥛";return"🥦";
+  if(/asparagus|芦笋/.test(n))return"🌿";if(/fries|potato|薯/.test(n))return"🍟";
+  if(/turkey|火鸡/.test(n))return"🦃";if(/chili|辣/.test(n))return"🌶️";
+  if(/cream|奶油/.test(n))return"🥛";if(/sauce|酱/.test(n))return"🫙";if(/oil|油/.test(n))return"🫙";
+  return"🥦";
+}
+
+/* Cost Summary */
+function renderCostSummary(){
+  const el=document.getElementById("cost-summary-list");
+  if(!ingredients.length){el.innerHTML='<div style="font-size:13px;color:var(--text3);text-align:center;padding:12px 0">No ingredients yet</div>';return;}
+  const total=ingredients.reduce((s,i)=>s+i.price,0);
+  el.innerHTML=ingredients.map(ing=>`
+    <div class="summary-row">
+      <span>${ing.name}</span>
+      <span style="color:var(--text2);font-size:13px">$${ing.price.toFixed(2)}</span>
+    </div>`).join("")+`
+    <div class="summary-total">
+      <span>Total Pantry Cost</span>
+      <span style="color:var(--accent-text)">$${total.toFixed(2)}</span>
+    </div>`;
 }
 
 function renderInventory(){
   const el=document.getElementById("inventory-list");
-  if(!ingredients.length){el.innerHTML='<div class="empty"><div class="empty-icon">🛒</div>还没有食材，先添加一些吧</div>';return;}
+  if(!ingredients.length){el.innerHTML='<div class="empty"><div class="empty-icon">🛒</div>No ingredients yet. Add some!</div>';return;}
   el.innerHTML=ingredients.map((ing,i)=>{
     const pct=Math.min(100,Math.round(ing.remaining/ing.qty*100));
-    const[bc,bl]=pct>50?["badge-green","充足"]:pct>20?["badge-amber","偏少"]:["badge-red","快没了"];
+    const[bc,bl]=pct>50?["badge-green","Good"]:pct>20?["badge-amber","Low"]:["badge-red","Almost out"];
     const uc=(ing.price/ing.qty).toFixed(3);
-    const bLabel=ing.basis==="perUnit"?"每个/份":"每100g";
+    const bLabel=ing.basis==="perUnit"?"per unit":"per 100g";
     const thumb=ing.img?`<img class="ing-thumb" src="${ing.img}" alt="" loading="lazy" onerror="this.style.display='none'">`:`<div class="ing-thumb-placeholder">${getEmoji(ing.name)}</div>`;
     return`<div class="ing-card"><div class="ing-card-body">
       <div class="ing-card-top">${thumb}
         <div class="ing-info">
           <div class="flex-between"><span class="row-title">${ing.name}</span><span class="badge ${bc}">${bl}</span></div>
-          <div class="row-sub" style="margin-top:4px">剩余 <b>${ing.remaining.toFixed(0)}</b>${ing.unit} / ${ing.qty}${ing.unit} · $${uc}/1${ing.unit}</div>
-          <div class="row-meta">${bLabel} · 热量${ing.cal||"—"} · 碳水${ing.carbs||"—"}g · 蛋白${ing.protein||"—"}g · 脂肪${ing.fat||"—"}g</div>
+          <div class="row-sub" style="margin-top:4px">Left: <b>${ing.remaining.toFixed(0)}</b>${ing.unit} / ${ing.qty}${ing.unit} · $${uc}/1${ing.unit}</div>
+          <div class="row-meta">${bLabel} · Cal ${ing.cal||"—"} · Carbs ${ing.carbs||"—"}g · Protein ${ing.protein||"—"}g · Fat ${ing.fat||"—"}g</div>
         </div>
       </div>
       <div class="bar-bg"><div class="bar-fill" style="width:${pct}%;background:var(--accent)"></div></div>
       <div style="display:flex;gap:8px;justify-content:flex-end">
-        <button class="btn btn-copy-sm" onclick="copyIng(${i})">复制</button>
-        <button class="btn btn-danger-sm" onclick="deleteIng(${i})">删除</button>
+        <button class="btn btn-copy-sm" onclick="copyIng(${i})">Copy</button>
+        <button class="btn btn-danger-sm" onclick="deleteIng(${i})">Delete</button>
       </div>
     </div></div>`;
   }).join("");
@@ -389,25 +433,25 @@ function addIngredient(){
   const protein=parseFloat(document.getElementById("ing-protein").value)||0;
   const carbs=parseFloat(document.getElementById("ing-carbs").value)||0;
   const fat=parseFloat(document.getElementById("ing-fat").value)||0;
-  if(!name||!qty||!price){alert("请填写名称、购买量和花费");return;}
+  if(!name||!qty||!price){alert("Please fill in name, quantity and cost.");return;}
   const btn=document.getElementById("add-btn");
-  btn.textContent="添加中…";btn.disabled=true;
+  btn.textContent="Adding…";btn.disabled=true;
   setTimeout(()=>{
     ingredients.push({name,qty,price,unit,cal,protein,carbs,fat,basis:currentBasis,img:pendingImg||"",remaining:qty});
     persist();
     ["ing-name","ing-qty","ing-price","ing-cal","ing-protein","ing-carbs","ing-fat"].forEach(id=>document.getElementById(id).value="");
     document.getElementById("fetch-status").className="fetch-status";
     removeImg();setBasis("per100g");
-    btn.textContent="+ 添加到库存";btn.disabled=false;
-    renderInventory();
+    btn.textContent="+ Add to Pantry";btn.disabled=false;
+    renderInventory();renderCostSummary();
   },50);
 }
 
-function deleteIng(i){if(!confirm("确认删除「"+ingredients[i].name+"」？"))return;ingredients.splice(i,1);persist();renderInventory();}
+function deleteIng(i){if(!confirm('Delete "'+ingredients[i].name+'"?'))return;ingredients.splice(i,1);persist();renderInventory();renderCostSummary();}
 
 function copyIng(i){
   const s=ingredients[i];
-  document.getElementById("ing-name").value=s.name+" (复制)";
+  document.getElementById("ing-name").value=s.name+" (copy)";
   document.getElementById("ing-qty").value=s.qty;
   document.getElementById("ing-price").value=s.price;
   document.getElementById("ing-unit").value=s.unit;
@@ -421,6 +465,7 @@ function copyIng(i){
   document.getElementById("ing-name").focus();
 }
 
+/* Pantry rows */
 function renderUsedRows(){
   const el=document.getElementById("used-ingredients");
   if(!usedRows.length){el.innerHTML="";return;}
@@ -429,56 +474,107 @@ function renderUsedRows(){
     const uLabel=ing?(ing.basis==="perUnit"?ing.unit:"g"):"g";
     return`<div class="used-row">
       <select onchange="usedRows[${i}].ingIdx=parseInt(this.value);renderUsedRows()">
-        <option value="-1">选食材…</option>
+        <option value="-1">Select ingredient…</option>
         ${ingredients.map((ing,j)=>`<option value="${j}" ${r.ingIdx===j?"selected":""}>${ing.name}(${ing.unit})</option>`).join("")}
       </select>
-      <input type="number" placeholder="用量(${uLabel})" value="${r.amount||""}" onchange="usedRows[${i}].amount=parseFloat(this.value)||0">
+      <input type="number" placeholder="Amt (${uLabel})" value="${r.amount||""}" onchange="usedRows[${i}].amount=parseFloat(this.value)||0">
       <button class="btn btn-danger-sm" onclick="usedRows.splice(${i},1);renderUsedRows()">✕</button>
     </div>`;
   }).join("");
 }
 
-function addUsedRow(){if(!ingredients.length){alert("请先在「食材库」添加食材");return;}usedRows.push({ingIdx:-1,amount:0});renderUsedRows();}
+function addUsedRow(){
+  if(!ingredients.length){alert("Add ingredients to Pantry first.");return;}
+  usedRows.push({ingIdx:-1,amount:0});renderUsedRows();
+}
+
+/* Manual entry rows */
+function renderManualRows(){
+  const el=document.getElementById("manual-entries");
+  if(!manualRows.length){el.innerHTML="";return;}
+  el.innerHTML=manualRows.map((r,i)=>`
+    <div class="manual-entry">
+      <div class="manual-tag">Manual</div>
+      <div class="form-full"><div class="form-label">Name (中文/English)</div>
+        <input type="text" placeholder="e.g. 奶茶 / Bubble tea" value="${r.name||""}" onchange="manualRows[${i}].name=this.value">
+      </div>
+      <div class="form-grid">
+        <div><div class="form-label">Cost ($)</div><input type="number" step="0.01" placeholder="3.50" value="${r.cost||""}" onchange="manualRows[${i}].cost=parseFloat(this.value)||0"></div>
+        <div><div class="form-label">Calories</div><input type="number" placeholder="0" value="${r.cal||""}" onchange="manualRows[${i}].cal=parseFloat(this.value)||0"></div>
+      </div>
+      <div class="form-grid">
+        <div><div class="form-label">Carbs (g)</div><input type="number" placeholder="0" value="${r.carbs||""}" onchange="manualRows[${i}].carbs=parseFloat(this.value)||0"></div>
+        <div><div class="form-label">Protein (g)</div><input type="number" placeholder="0" value="${r.protein||""}" onchange="manualRows[${i}].protein=parseFloat(this.value)||0"></div>
+      </div>
+      <div class="form-grid">
+        <div><div class="form-label">Fat (g)</div><input type="number" placeholder="0" value="${r.fat||""}" onchange="manualRows[${i}].fat=parseFloat(this.value)||0"></div>
+        <div style="display:flex;align-items:flex-end">
+          <button class="btn btn-danger-sm" style="margin-bottom:0;width:100%" onclick="manualRows.splice(${i},1);renderManualRows()">Remove</button>
+        </div>
+      </div>
+      <div class="form-full"><div class="form-label">Notes (optional)</div>
+        <input type="text" placeholder="e.g. restaurant name, brand…" value="${r.note||""}" onchange="manualRows[${i}].note=this.value">
+      </div>
+    </div>`).join("");
+}
+
+function addManualRow(){
+  manualRows.push({name:"",cost:0,cal:0,carbs:0,protein:0,fat:0,note:""});
+  renderManualRows();
+}
 
 function saveMeal(){
   const name=document.getElementById("meal-name").value.trim();
   const date=document.getElementById("meal-date").value||today();
-  if(!name){alert("请填写餐食名称");return;}
-  const used=usedRows.filter(r=>r.ingIdx>=0&&r.amount>0);
-  if(!used.length){alert("请至少添加一种食材并填写用量");return;}
-  let cost=0,cal=0,protein=0,carbs=0,fat=0;const items=[];
-  for(const r of used){
-    const ing=ingredients[r.ingIdx];if(!ing)continue;
-    const c=(ing.price/ing.qty)*r.amount;cost+=c;
-    const mult=ing.basis==="perUnit"?r.amount:r.amount/100;
-    cal+=(ing.cal||0)*mult;protein+=(ing.protein||0)*mult;
-    carbs+=(ing.carbs||0)*mult;fat+=(ing.fat||0)*mult;
-    items.push({name:ing.name,amount:r.amount,unit:ing.basis==="perUnit"?ing.unit:"g",cost:parseFloat(c.toFixed(4))});
-    ing.remaining=Math.max(0,ing.remaining-r.amount);
+  if(!name){alert("Please enter a meal name.");return;}
+  let cost=0,cal=0,protein=0,carbs=0,fat=0;
+  const items=[];
+
+  if(mealMode==="pantry"){
+    const used=usedRows.filter(r=>r.ingIdx>=0&&r.amount>0);
+    if(!used.length){alert("Add at least one ingredient with amount.");return;}
+    for(const r of used){
+      const ing=ingredients[r.ingIdx];if(!ing)continue;
+      const c=(ing.price/ing.qty)*r.amount;cost+=c;
+      const mult=ing.basis==="perUnit"?r.amount:r.amount/100;
+      cal+=(ing.cal||0)*mult;protein+=(ing.protein||0)*mult;
+      carbs+=(ing.carbs||0)*mult;fat+=(ing.fat||0)*mult;
+      items.push({name:ing.name,amount:r.amount,unit:ing.basis==="perUnit"?ing.unit:"g",cost:parseFloat(c.toFixed(4))});
+      ing.remaining=Math.max(0,ing.remaining-r.amount);
+    }
+  } else {
+    const valid=manualRows.filter(r=>r.name.trim());
+    if(!valid.length){alert("Add at least one item with a name.");return;}
+    for(const r of valid){
+      cost+=r.cost||0;cal+=r.cal||0;protein+=r.protein||0;
+      carbs+=r.carbs||0;fat+=r.fat||0;
+      items.push({name:r.name+(r.note?" ("+r.note+")":""),amount:1,unit:"serving",cost:r.cost||0,manual:true});
+    }
   }
-  meals.unshift({name,date,cost:parseFloat(cost.toFixed(4)),cal:Math.round(cal),protein:parseFloat(protein.toFixed(1)),carbs:parseFloat(carbs.toFixed(1)),fat:parseFloat(fat.toFixed(1)),items});
+
+  meals.unshift({name,date,cost:parseFloat(cost.toFixed(4)),cal:Math.round(cal),protein:parseFloat(protein.toFixed(1)),carbs:parseFloat(carbs.toFixed(1)),fat:parseFloat(fat.toFixed(1)),items,manual:mealMode==="manual"});
   persist();
-  document.getElementById("meal-name").value="";usedRows=[];renderUsedRows();renderMealList();
+  document.getElementById("meal-name").value="";
+  usedRows=[];manualRows=[];
+  renderUsedRows();renderManualRows();renderMealList();
 }
 
 function renderMealList(){
   const el=document.getElementById("meal-list");
-  if(!meals.length){el.innerHTML='<div class="empty"><div class="empty-icon">🍽️</div>还没有记录</div>';return;}
-  // group by date
+  if(!meals.length){el.innerHTML='<div class="empty"><div class="empty-icon">🍽️</div>No meals logged yet</div>';return;}
   const groups={};
-  meals.slice(0,30).forEach((m,i)=>{
-    if(!groups[m.date])groups[m.date]=[];
-    groups[m.date].push({m,i});
-  });
+  meals.slice(0,30).forEach((m,i)=>{if(!groups[m.date])groups[m.date]=[];groups[m.date].push({m,i});});
   el.innerHTML=Object.keys(groups).sort((a,b)=>b.localeCompare(a)).map(date=>{
     const dayTotal=groups[date].reduce((s,{m})=>s+m.cost,0);
-    return`<div class="day-meals-group">
-      <div class="day-header">${fmtDate(date)} · 合计 $${dayTotal.toFixed(2)}</div>
+    return`<div style="margin-bottom:4px">
+      <div style="font-size:12px;font-weight:700;color:var(--text3);padding:8px 0 4px;text-transform:uppercase;letter-spacing:0.5px;border-bottom:1px solid var(--border);margin-bottom:4px">${fmtDate(date)} · Total $${dayTotal.toFixed(2)}</div>
       ${groups[date].map(({m,i})=>`
         <div class="card" style="margin-bottom:8px">
           <div class="flex-between">
-            <div><div class="row-title">${m.name}</div><div class="row-meta">${m.cal}kcal · 碳水${m.carbs||0}g · 蛋白${m.protein}g · 脂肪${m.fat||0}g</div></div>
-            <div style="text-align:right"><div class="cost-tag">$${m.cost.toFixed(2)}</div><button class="btn btn-danger-sm" style="margin-top:6px" onclick="deleteMeal(${i})">删除</button></div>
+            <div><div class="row-title">${m.name}${m.manual?" 📝":""}</div>
+            <div class="row-meta">${m.cal} kcal · Carbs ${m.carbs||0}g · Protein ${m.protein}g · Fat ${m.fat||0}g</div></div>
+            <div style="text-align:right"><div class="cost-tag">$${m.cost.toFixed(2)}</div>
+            <button class="btn btn-danger-sm" style="margin-top:6px" onclick="deleteMeal(${i})">Delete</button></div>
           </div>
           <div style="font-size:12px;color:var(--text3);margin-top:6px">${m.items.map(it=>it.name+" "+it.amount+it.unit).join(" · ")}</div>
         </div>`).join("")}
@@ -486,102 +582,63 @@ function renderMealList(){
   }).join("");
 }
 
-function deleteMeal(i){
-  if(!confirm("确认删除「"+meals[i].name+"」？"))return;
-  meals.splice(i,1);persist();renderMealList();renderStats();
-}
+function deleteMeal(i){if(!confirm('Delete "'+meals[i].name+'"?'))return;meals.splice(i,1);persist();renderMealList();renderStats();}
 
-/* stats */
 function setPeriod(p){
   currentPeriod=p;
   ["day","week","month","all"].forEach(x=>document.getElementById("pt-"+x).classList.toggle("active",x===p));
   renderCostStats();
 }
 
-function changeNutDay(delta){
-  nutDateOffset+=delta;
-  if(nutDateOffset>0)nutDateOffset=0;
-  renderDailyNutrition();
-}
+function changeNutDay(delta){nutDateOffset+=delta;if(nutDateOffset>0)nutDateOffset=0;renderDailyNutrition();}
 
 function getMealsInPeriod(period){
-  const now=new Date(),t=today();
-  const wa=new Date(now-7*864e5).toISOString().split("T")[0];
-  const ms=new Date(now.getFullYear(),now.getMonth(),1).toISOString().split("T")[0];
-  return meals.filter(m=>{
-    if(period==="day")return m.date===t;
-    if(period==="week")return m.date>=wa;
-    if(period==="month")return m.date>=ms;
-    return true;
-  });
+  const t=today(),wa=new Date(Date.now()-7*864e5).toISOString().split("T")[0],ms=new Date(new Date().getFullYear(),new Date().getMonth(),1).toISOString().split("T")[0];
+  return meals.filter(m=>period==="day"?m.date===t:period==="week"?m.date>=wa:period==="month"?m.date>=ms:true);
 }
 
 function renderCostStats(){
-  const filtered=getMealsInPeriod(currentPeriod);
-  const totalCost=filtered.reduce((s,m)=>s+m.cost,0);
-  const avgCost=filtered.length?totalCost/filtered.length:0;
-  const labels={day:"今日",week:"本周",month:"本月",all:"全部"};
+  const f=getMealsInPeriod(currentPeriod);
+  const tc=f.reduce((s,m)=>s+m.cost,0),avg=f.length?tc/f.length:0;
+  const labels={day:"Today",week:"This week",month:"This month",all:"All time"};
   document.getElementById("cost-stats").innerHTML=`
-    <div class="stat"><div class="stat-label">${labels[currentPeriod]}花费</div><div class="stat-value">$${totalCost.toFixed(2)}</div><div class="stat-sub">${filtered.length} 餐</div></div>
-    <div class="stat"><div class="stat-label">餐均成本</div><div class="stat-value">$${avgCost.toFixed(2)}</div><div class="stat-sub">每餐</div></div>`;
+    <div class="stat"><div class="stat-label">${labels[currentPeriod]}</div><div class="stat-value">$${tc.toFixed(2)}</div><div class="stat-sub">${f.length} meals</div></div>
+    <div class="stat"><div class="stat-label">Avg per meal</div><div class="stat-value">$${avg.toFixed(2)}</div><div class="stat-sub">per meal</div></div>`;
 }
 
 function renderDailyNutrition(){
   const dateStr=dateFromOffset(nutDateOffset);
-  const label=nutDateOffset===0?"今天":nutDateOffset===-1?"昨天":fmtDate(dateStr);
+  const label=nutDateOffset===0?"Today":nutDateOffset===-1?"Yesterday":fmtDate(dateStr);
   document.getElementById("nut-date-label").textContent=label+" ("+fmtDate(dateStr)+")";
   const dayMeals=meals.filter(m=>m.date===dateStr);
   const el=document.getElementById("daily-nutrition");
-  if(!dayMeals.length){
-    el.innerHTML='<div class="empty" style="padding:20px"><div class="empty-icon">🥗</div>这天没有记录</div>';
-    return;
-  }
+  if(!dayMeals.length){el.innerHTML='<div class="empty" style="padding:20px"><div class="empty-icon">🥗</div>No meals on this day</div>';return;}
   const tot={cal:0,carbs:0,protein:0,fat:0,cost:0};
   dayMeals.forEach(m=>{tot.cal+=m.cal;tot.carbs+=(m.carbs||0);tot.protein+=m.protein;tot.fat+=(m.fat||0);tot.cost+=m.cost;});
-  const bars=[
-    ["热量",Math.round(tot.cal),"kcal",tot.cal/2000,"#2d6a4f",2000],
-    ["碳水",parseFloat(tot.carbs.toFixed(1)),"g",tot.carbs/275,"#b45309",275],
-    ["蛋白质",parseFloat(tot.protein.toFixed(1)),"g",tot.protein/50,"#1e40af",50],
-    ["脂肪",parseFloat(tot.fat.toFixed(1)),"g",tot.fat/65,"#7c3aed",65]
-  ];
-  el.innerHTML=`
-    <div style="font-size:13px;color:var(--text2);margin-bottom:12px">共 ${dayMeals.length} 餐 · 今日花费 $${tot.cost.toFixed(2)}</div>
-    ${bars.map(([label,val,unit,pct,color,goal])=>`
-      <div class="nut-row">
-        <div class="nut-top">
-          <span>${label}</span>
-          <span>${val} ${unit} <span class="nut-pct">/ ${goal}${unit} 建议量 (${Math.round(pct*100)}%)</span></span>
-        </div>
-        <div class="bar-bg"><div class="bar-fill" style="width:${Math.min(100,Math.round(pct*100))}%;background:${color}"></div></div>
-      </div>`).join("")}
-    <div style="margin-top:10px;font-size:12px;color:var(--text3)">当日餐食：${dayMeals.map(m=>m.name).join("、")}</div>`;
+  const bars=[["Calories",Math.round(tot.cal),"kcal",tot.cal/2000,"#2d6a4f",2000],["Carbs",parseFloat(tot.carbs.toFixed(1)),"g",tot.carbs/275,"#b45309",275],["Protein",parseFloat(tot.protein.toFixed(1)),"g",tot.protein/50,"#1e40af",50],["Fat",parseFloat(tot.fat.toFixed(1)),"g",tot.fat/65,"#7c3aed",65]];
+  el.innerHTML=`<div style="font-size:13px;color:var(--text2);margin-bottom:12px">${dayMeals.length} meals · Cost $${tot.cost.toFixed(2)}</div>`+
+    bars.map(([label,val,unit,pct,color,goal])=>`<div class="nut-row"><div class="nut-top"><span>${label}</span><span>${val} ${unit} <span class="nut-pct">/ ${goal}${unit} (${Math.round(pct*100)}%)</span></span></div><div class="bar-bg"><div class="bar-fill" style="width:${Math.min(100,Math.round(pct*100))}%;background:${color}"></div></div></div>`).join("")+
+    `<div style="margin-top:10px;font-size:12px;color:var(--text3)">Meals: ${dayMeals.map(m=>m.name).join(", ")}</div>`;
 }
 
 function renderBreakdown(){
   const el=document.getElementById("cost-breakdown");
-  if(!meals.length){el.innerHTML='<div class="empty"><div class="empty-icon">📊</div>暂无数据</div>';return;}
+  if(!meals.length){el.innerHTML='<div class="empty"><div class="empty-icon">📊</div>No data yet</div>';return;}
   const groups={};
-  meals.slice(0,20).forEach((m,i)=>{
-    if(!groups[m.date])groups[m.date]=[];
-    groups[m.date].push(m);
-  });
+  meals.slice(0,20).forEach(m=>{if(!groups[m.date])groups[m.date]=[];groups[m.date].push(m);});
   el.innerHTML=Object.keys(groups).sort((a,b)=>b.localeCompare(a)).map(date=>{
-    const dayTotal=groups[date].reduce((s,m)=>s+m.cost,0);
+    const dt=groups[date].reduce((s,m)=>s+m.cost,0);
     return`<div style="margin-bottom:12px">
-      <div style="font-size:12px;font-weight:700;color:var(--text3);margin-bottom:6px">${fmtDate(date)} · $${dayTotal.toFixed(2)}</div>
-      ${groups[date].map(m=>`<div class="row"><div class="flex-between"><div class="row-title">${m.name}</div><div class="cost-tag">$${m.cost.toFixed(2)}</div></div></div>`).join("")}
+      <div style="font-size:12px;font-weight:700;color:var(--text3);margin-bottom:6px">${fmtDate(date)} · $${dt.toFixed(2)}</div>
+      ${groups[date].map(m=>`<div class="row"><div class="flex-between"><div class="row-title">${m.name}${m.manual?" 📝":""}</div><div class="cost-tag">$${m.cost.toFixed(2)}</div></div></div>`).join("")}
     </div>`;
   }).join("");
 }
 
-function renderStats(){
-  renderCostStats();
-  renderDailyNutrition();
-  renderBreakdown();
-}
+function renderStats(){renderCostStats();renderDailyNutrition();renderBreakdown();}
 
 document.getElementById("meal-date").value=today();
-renderInventory();renderMealList();
+renderInventory();renderCostSummary();renderMealList();
 </script>
 </body>
 </html>
