@@ -292,8 +292,21 @@ function persist(){
   catch(e){alert("Storage full. Delete some photos and try again.");}
 }
 
-function today(){return new Date().toISOString().split("T")[0];}
-function dateFromOffset(o){const d=new Date();d.setDate(d.getDate()+o);return d.toISOString().split("T")[0];}
+function today(){
+  const d=new Date();
+  const y=d.getFullYear();
+  const m=String(d.getMonth()+1).padStart(2,"0");
+  const day=String(d.getDate()).padStart(2,"0");
+  return y+"-"+m+"-"+day;
+}
+function dateFromOffset(o){
+  const d=new Date();
+  d.setDate(d.getDate()+o);
+  const y=d.getFullYear();
+  const m=String(d.getMonth()+1).padStart(2,"0");
+  const day=String(d.getDate()).padStart(2,"0");
+  return y+"-"+m+"-"+day;
+}
 function fmtDate(d){const[y,m,day]=d.split("-");return m+"/"+day+"/"+y;}
 
 function switchTab(t){
