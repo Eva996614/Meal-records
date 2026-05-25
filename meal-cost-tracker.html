@@ -100,6 +100,13 @@
   .img-preview-wrap{margin-bottom:10px;position:relative}
   .img-preview{width:100%;height:100px;object-fit:cover;border-radius:var(--radius-sm);border:1px solid var(--border);display:block}
   .img-remove{position:absolute;top:6px;right:6px;background:rgba(0,0,0,0.5);border:none;border-radius:50%;width:24px;height:24px;color:white;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+  /* Edit modal */
+  .modal-overlay{display:none;position:fixed;inset:0;z-index:998;background:rgba(0,0,0,0.5)}
+  .modal-overlay.active{display:block}
+  .modal{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:var(--surface);border-radius:20px 20px 0 0;padding:20px 16px 40px;z-index:999;max-height:85vh;overflow-y:auto}
+  .modal-title{font-size:16px;font-weight:700;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center}
+  .modal-close{background:none;border:none;font-size:22px;color:var(--text3);cursor:pointer;padding:0 4px}
+
   /* manual entry toggle */
   .mode-toggle{display:flex;gap:6px;margin-bottom:12px}
   .mode-btn{flex:1;padding:9px 0;font-size:13px;font-weight:600;text-align:center;border:1.5px solid var(--border);border-radius:10px;background:var(--surface);color:var(--text2);cursor:pointer;font-family:var(--font)}
@@ -230,6 +237,29 @@
     </div>
     <div class="card"><div class="card-title">Meal Breakdown</div><div id="cost-breakdown"></div></div>
   </div>
+</div>
+
+
+<!-- Edit meal modal -->
+<div class="modal-overlay" id="edit-overlay" onclick="closeEditModal()"></div>
+<div class="modal" id="edit-modal" style="display:none">
+  <div class="modal-title">
+    <span>Edit Meal</span>
+    <button class="modal-close" onclick="closeEditModal()">✕</button>
+  </div>
+  <div class="form-full"><div class="form-label">Meal Name</div><input type="text" id="edit-meal-name" placeholder="Meal name"></div>
+  <div class="form-full"><div class="form-label">Date</div><input type="date" id="edit-meal-date"></div>
+  <div class="form-full"><div class="form-label">Calories (kcal)</div><input type="number" id="edit-meal-cal" placeholder="0"></div>
+  <div class="form-grid">
+    <div><div class="form-label">Carbs (g)</div><input type="number" id="edit-meal-carbs" placeholder="0"></div>
+    <div><div class="form-label">Protein (g)</div><input type="number" id="edit-meal-protein" placeholder="0"></div>
+  </div>
+  <div class="form-grid">
+    <div><div class="form-label">Fat (g)</div><input type="number" id="edit-meal-fat" placeholder="0"></div>
+    <div><div class="form-label">Cost ($)</div><input type="number" id="edit-meal-cost" step="0.01" placeholder="0.00"></div>
+  </div>
+  <div class="form-full"><div class="form-label">Notes</div><input type="text" id="edit-meal-notes" placeholder="e.g. ingredients summary"></div>
+  <button class="btn btn-primary" style="margin-top:8px" onclick="saveEditMeal()">Save Changes</button>
 </div>
 
 <!-- scanner -->
@@ -573,16 +603,73 @@ function renderMealList(){
           <div class="flex-between">
             <div><div class="row-title">${m.name}${m.manual?" 📝":""}</div>
             <div class="row-meta">${m.cal} kcal · Carbs ${m.carbs||0}g · Protein ${m.protein}g · Fat ${m.fat||0}g</div></div>
-            <div style="text-align:right"><div class="cost-tag">$${m.cost.toFixed(2)}</div>
-            <button class="btn btn-danger-sm" style="margin-top:6px" onclick="deleteMeal(${i})">Delete</button></div>
+            <div style="text-align:right"><div class="cost-tag">$${m.cost.toFixed(2)}</div></div>
           </div>
-          <div style="font-size:12px;color:var(--text3);margin-top:6px">${m.items.map(it=>it.name+" "+it.amount+it.unit).join(" · ")}</div>
+          <div style="font-size:12px;color:var(--text3);margin-top:6px;margin-bottom:10px">${m.items.map(it=>it.name+" "+it.amount+it.unit).join(" · ")}</div>
+          <div style="display:flex;gap:8px;justify-content:flex-end">
+            <button class="btn btn-copy-sm" onclick="copyMeal(${i})">Copy</button>
+            <button class="btn btn-sm" style="padding:5px 10px;font-size:12px;margin-top:0;border-color:var(--border2)" onclick="openEditModal(${i})">Edit</button>
+            <button class="btn btn-danger-sm" onclick="deleteMeal(${i})">Delete</button>
+          </div>
         </div>`).join("")}
     </div>`;
   }).join("");
 }
 
 function deleteMeal(i){if(!confirm('Delete "'+meals[i].name+'"?'))return;meals.splice(i,1);persist();renderMealList();renderStats();}
+
+
+function copyMeal(i){
+  const m=meals[i];
+  document.getElementById("meal-name").value=m.name+" (copy)";
+  document.getElementById("meal-date").value=today();
+  // switch to manual mode and prefill
+  setMealMode("manual");
+  manualRows=[{name:m.name,cost:m.cost,cal:m.cal,carbs:m.carbs||0,protein:m.protein,fat:m.fat||0,note:"copied"}];
+  renderManualRows();
+  switchTab("meal");
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+let editingMealIdx=-1;
+function openEditModal(i){
+  const m=meals[i];
+  editingMealIdx=i;
+  document.getElementById("edit-meal-name").value=m.name;
+  document.getElementById("edit-meal-date").value=m.date;
+  document.getElementById("edit-meal-cal").value=m.cal||0;
+  document.getElementById("edit-meal-carbs").value=m.carbs||0;
+  document.getElementById("edit-meal-protein").value=m.protein||0;
+  document.getElementById("edit-meal-fat").value=m.fat||0;
+  document.getElementById("edit-meal-cost").value=m.cost||0;
+  document.getElementById("edit-meal-notes").value=m.items.map(it=>it.name+" "+it.amount+it.unit).join(", ");
+  document.getElementById("edit-overlay").classList.add("active");
+  document.getElementById("edit-modal").style.display="block";
+}
+
+function closeEditModal(){
+  document.getElementById("edit-overlay").classList.remove("active");
+  document.getElementById("edit-modal").style.display="none";
+  editingMealIdx=-1;
+}
+
+function saveEditMeal(){
+  if(editingMealIdx<0)return;
+  const m=meals[editingMealIdx];
+  m.name=document.getElementById("edit-meal-name").value.trim()||m.name;
+  m.date=document.getElementById("edit-meal-date").value||m.date;
+  m.cal=parseFloat(document.getElementById("edit-meal-cal").value)||0;
+  m.carbs=parseFloat(document.getElementById("edit-meal-carbs").value)||0;
+  m.protein=parseFloat(document.getElementById("edit-meal-protein").value)||0;
+  m.fat=parseFloat(document.getElementById("edit-meal-fat").value)||0;
+  m.cost=parseFloat(document.getElementById("edit-meal-cost").value)||0;
+  const notes=document.getElementById("edit-meal-notes").value.trim();
+  if(notes) m.items=[{name:notes,amount:1,unit:"",cost:m.cost}];
+  persist();
+  closeEditModal();
+  renderMealList();
+  renderStats();
+}
 
 function setPeriod(p){
   currentPeriod=p;
