@@ -117,6 +117,25 @@
   .summary-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border);font-size:14px}
   .summary-row:last-child{border-bottom:none}
   .summary-total{display:flex;justify-content:space-between;align-items:center;padding:10px 0 0;font-size:15px;font-weight:700;margin-top:4px;border-top:2px solid var(--border2)}
+  /* Health tracking */
+  .health-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+  .health-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px}
+  .health-label{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px}
+  .health-value{font-size:20px;font-weight:700;letter-spacing:-0.5px}
+  .health-sub{font-size:12px;color:var(--text3);margin-top:2px}
+  .period-dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px}
+  .period-active{background:#ef4444}
+  .period-none{background:var(--border2)}
+  .weight-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px}
+  .weight-row:last-child{border-bottom:none}
+  .period-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px}
+  .period-row:last-child{border-bottom:none}
+  .tag-period{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;background:#fee2e2;color:#991b1b}
+  .tag-period-end{background:#e8f4ee;color:#1a4a33}
+  .goals-bar{margin-bottom:8px}
+  .goals-top{display:flex;justify-content:space-between;align-items:baseline;font-size:12px;color:var(--text2);margin-bottom:2px}
+  .goals-pct{font-size:11px;color:var(--text3)}
+
 </style>
 </head>
 <body>
@@ -125,6 +144,7 @@
   <button class="tab active" onclick="switchTab('pantry')">Pantry</button>
   <button class="tab" onclick="switchTab('meal')">Log Meal</button>
   <button class="tab" onclick="switchTab('stats')">Stats</button>
+  <button class="tab" onclick="switchTab('health')">Health</button>
 </div>
 <div class="content">
 
@@ -240,6 +260,63 @@
 </div>
 
 
+
+  <!-- HEALTH -->
+  <div id="tab-health" class="section">
+    <!-- Goals settings -->
+    <div class="card">
+      <div class="card-title">Daily Goals</div>
+      <div class="form-grid">
+        <div><div class="form-label">Calories (kcal)</div><input type="number" id="goal-cal" placeholder="1200" onchange="saveGoals()"></div>
+        <div><div class="form-label">Carbs (g)</div><input type="number" id="goal-carbs" placeholder="135" onchange="saveGoals()"></div>
+      </div>
+      <div class="form-grid">
+        <div><div class="form-label">Protein (g)</div><input type="number" id="goal-protein" placeholder="75" onchange="saveGoals()"></div>
+        <div><div class="form-label">Fat (g)</div><input type="number" id="goal-fat" placeholder="40" onchange="saveGoals()"></div>
+      </div>
+      <div style="font-size:12px;color:var(--text3);margin-top:4px">Based on your profile: 155cm · 51.5kg · 30y · 1200 kcal/day</div>
+    </div>
+
+    <!-- Log weight -->
+    <div class="card">
+      <div class="card-title">Log Weight</div>
+      <div class="form-grid">
+        <div><div class="form-label">Weight (kg)</div><input type="number" id="log-weight" step="0.1" placeholder="51.5"></div>
+        <div><div class="form-label">Date</div><input type="date" id="log-weight-date"></div>
+      </div>
+      <button class="btn btn-primary" onclick="logWeight()">+ Log Weight</button>
+      <div class="sec-label" style="margin-top:16px">Weight History</div>
+      <div id="weight-history"></div>
+    </div>
+
+    <!-- Log period -->
+    <div class="card">
+      <div class="card-title">Period Tracker</div>
+      <div class="form-grid">
+        <div>
+          <div class="form-label">Type</div>
+          <select id="log-period-type">
+            <option value="start">Period Start 🔴</option>
+            <option value="end">Period End 🟢</option>
+            <option value="spotting">Spotting 🟡</option>
+            <option value="pms">PMS symptoms</option>
+          </select>
+        </div>
+        <div><div class="form-label">Date</div><input type="date" id="log-period-date"></div>
+      </div>
+      <div class="form-full"><div class="form-label">Notes (optional)</div><input type="text" id="log-period-note" placeholder="e.g. cramps, flow level…"></div>
+      <button class="btn btn-primary" onclick="logPeriod()">+ Log Entry</button>
+      <div class="sec-label" style="margin-top:16px">Period History</div>
+      <div id="period-history"></div>
+    </div>
+
+    <!-- Today summary -->
+    <div class="card">
+      <div class="card-title">Today vs Goals</div>
+      <div id="goals-progress"></div>
+    </div>
+  </div>
+
 <!-- Edit meal modal -->
 <div class="modal-overlay" id="edit-overlay" onclick="closeEditModal()"></div>
 <div class="modal" id="edit-modal" style="display:none">
@@ -311,12 +388,13 @@ function dateFromOffset(o){
 function fmtDate(d){const[y,m,day]=d.split("-");return m+"/"+day+"/"+y;}
 
 function switchTab(t){
-  document.querySelectorAll(".tab").forEach((b,i)=>b.classList.toggle("active",["pantry","meal","stats"][i]===t));
+  document.querySelectorAll(".tab").forEach((b,i)=>b.classList.toggle("active",["pantry","meal","stats","health"][i]===t));
   document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
   document.getElementById("tab-"+t).classList.add("active");
   if(t==="pantry"){renderInventory();renderCostSummary();}
   if(t==="meal"){renderUsedRows();renderManualRows();renderMealList();}
   if(t==="stats")renderStats();
+  if(t==="health"){initHealth();}
 }
 
 function setBasis(b){
@@ -685,6 +763,109 @@ function saveEditMeal(){
   renderStats();
 }
 
+
+/* ── HEALTH ── */
+let goals=JSON.parse(localStorage.getItem("mc_goals")||'{"cal":1200,"carbs":135,"protein":75,"fat":40}');
+let weights=JSON.parse(localStorage.getItem("mc_weights")||"[]");
+let periods=JSON.parse(localStorage.getItem("mc_periods")||"[]");
+
+function saveGoals(){
+  goals.cal=parseFloat(document.getElementById("goal-cal").value)||1500;
+  goals.carbs=parseFloat(document.getElementById("goal-carbs").value)||175;
+  goals.protein=parseFloat(document.getElementById("goal-protein").value)||82;
+  goals.fat=parseFloat(document.getElementById("goal-fat").value)||50;
+  localStorage.setItem("mc_goals",JSON.stringify(goals));
+  renderGoalsProgress();
+}
+
+function initHealth(){
+  document.getElementById("goal-cal").value=goals.cal;
+  document.getElementById("goal-carbs").value=goals.carbs;
+  document.getElementById("goal-protein").value=goals.protein;
+  document.getElementById("goal-fat").value=goals.fat;
+  document.getElementById("log-weight-date").value=today();
+  document.getElementById("log-period-date").value=today();
+  renderWeightHistory();
+  renderPeriodHistory();
+  renderGoalsProgress();
+}
+
+function logWeight(){
+  const w=parseFloat(document.getElementById("log-weight").value);
+  const d=document.getElementById("log-weight-date").value||today();
+  if(!w){alert("Please enter a weight.");return;}
+  weights.unshift({w,d});
+  localStorage.setItem("mc_weights",JSON.stringify(weights));
+  document.getElementById("log-weight").value="";
+  renderWeightHistory();
+}
+
+function renderWeightHistory(){
+  const el=document.getElementById("weight-history");
+  if(!weights.length){el.innerHTML='<div style="font-size:13px;color:var(--text3);padding:8px 0">No entries yet</div>';return;}
+  // show trend
+  const recent=weights.slice(0,10);
+  const trend=recent.length>1?(recent[0].w-recent[recent.length-1].w).toFixed(1):null;
+  const trendStr=trend!==null?(parseFloat(trend)>0?"↑ +"+trend+"kg since start":"↓ "+trend+"kg since start"):"";
+  el.innerHTML=`<div style="font-size:12px;color:var(--accent-text);margin-bottom:8px;font-weight:600">${trendStr}</div>`+
+    recent.map((e,i)=>`<div class="weight-row">
+      <span>${fmtDate(e.d)}</span>
+      <span style="font-weight:600">${e.w} kg</span>
+      <button class="btn btn-danger-sm" onclick="deleteWeight(${i})">✕</button>
+    </div>`).join("");
+}
+
+function deleteWeight(i){weights.splice(i,1);localStorage.setItem("mc_weights",JSON.stringify(weights));renderWeightHistory();}
+
+function logPeriod(){
+  const type=document.getElementById("log-period-type").value;
+  const d=document.getElementById("log-period-date").value||today();
+  const note=document.getElementById("log-period-note").value.trim();
+  periods.unshift({type,d,note});
+  localStorage.setItem("mc_periods",JSON.stringify(periods));
+  document.getElementById("log-period-note").value="";
+  renderPeriodHistory();
+}
+
+function renderPeriodHistory(){
+  const el=document.getElementById("period-history");
+  if(!periods.length){el.innerHTML='<div style="font-size:13px;color:var(--text3);padding:8px 0">No entries yet</div>';return;}
+  const icons={start:"🔴",end:"🟢",spotting:"🟡",pms:"😣"};
+  const labels={start:"Period Start",end:"Period End",spotting:"Spotting",pms:"PMS"};
+  el.innerHTML=periods.slice(0,20).map((p,i)=>`<div class="period-row">
+    <span>${icons[p.type]||"📅"} <b>${labels[p.type]||p.type}</b>${p.note?" · "+p.note:""}</span>
+    <span style="color:var(--text3);font-size:12px">${fmtDate(p.d)}</span>
+    <button class="btn btn-danger-sm" onclick="deletePeriod(${i})">✕</button>
+  </div>`).join("");
+}
+
+function deletePeriod(i){periods.splice(i,1);localStorage.setItem("mc_periods",JSON.stringify(periods));renderPeriodHistory();}
+
+function renderGoalsProgress(){
+  const el=document.getElementById("goals-progress");
+  const todayMeals=meals.filter(m=>m.date===today());
+  if(!todayMeals.length){el.innerHTML='<div style="font-size:13px;color:var(--text3);text-align:center;padding:16px 0">No meals logged today</div>';return;}
+  const tot={cal:0,carbs:0,protein:0,fat:0};
+  todayMeals.forEach(m=>{tot.cal+=m.cal;tot.carbs+=(m.carbs||0);tot.protein+=m.protein;tot.fat+=(m.fat||0);});
+  const bars=[
+    ["Calories",Math.round(tot.cal),"kcal",goals.cal,"#2d6a4f"],
+    ["Carbs",parseFloat(tot.carbs.toFixed(1)),"g",goals.carbs,"#b45309"],
+    ["Protein",parseFloat(tot.protein.toFixed(1)),"g",goals.protein,"#1e40af"],
+    ["Fat",parseFloat(tot.fat.toFixed(1)),"g",goals.fat,"#7c3aed"]
+  ];
+  el.innerHTML=bars.map(([label,val,unit,goal,color])=>{
+    const pct=Math.min(100,Math.round(val/goal*100));
+    const over=val>goal;
+    return`<div class="goals-bar">
+      <div class="goals-top">
+        <span>${label}</span>
+        <span>${val}${unit} / ${goal}${unit} <span class="goals-pct" style="color:${over?"#991b1b":"var(--text3)"}">(${pct}%${over?" ⚠️":""})</span></span>
+      </div>
+      <div class="bar-bg"><div class="bar-fill" style="width:${pct}%;background:${color}"></div></div>
+    </div>`;
+  }).join("");
+}
+
 function setPeriod(p){
   currentPeriod=p;
   ["day","week","month","all"].forEach(x=>document.getElementById("pt-"+x).classList.toggle("active",x===p));
@@ -716,7 +897,8 @@ function renderDailyNutrition(){
   if(!dayMeals.length){el.innerHTML='<div class="empty" style="padding:20px"><div class="empty-icon">🥗</div>No meals on this day</div>';return;}
   const tot={cal:0,carbs:0,protein:0,fat:0,cost:0};
   dayMeals.forEach(m=>{tot.cal+=m.cal;tot.carbs+=(m.carbs||0);tot.protein+=m.protein;tot.fat+=(m.fat||0);tot.cost+=m.cost;});
-  const bars=[["Calories",Math.round(tot.cal),"kcal",tot.cal/2000,"#2d6a4f",2000],["Carbs",parseFloat(tot.carbs.toFixed(1)),"g",tot.carbs/275,"#b45309",275],["Protein",parseFloat(tot.protein.toFixed(1)),"g",tot.protein/50,"#1e40af",50],["Fat",parseFloat(tot.fat.toFixed(1)),"g",tot.fat/65,"#7c3aed",65]];
+  const g=JSON.parse(localStorage.getItem("mc_goals")||'{"cal":1200,"carbs":135,"protein":75,"fat":40}');
+  const bars=[["Calories",Math.round(tot.cal),"kcal",tot.cal/g.cal,"#2d6a4f",g.cal],["Carbs",parseFloat(tot.carbs.toFixed(1)),"g",tot.carbs/g.carbs,"#b45309",g.carbs],["Protein",parseFloat(tot.protein.toFixed(1)),"g",tot.protein/g.protein,"#1e40af",g.protein],["Fat",parseFloat(tot.fat.toFixed(1)),"g",tot.fat/g.fat,"#7c3aed",g.fat]];
   el.innerHTML=`<div style="font-size:13px;color:var(--text2);margin-bottom:12px">${dayMeals.length} meals · Cost $${tot.cost.toFixed(2)}</div>`+
     bars.map(([label,val,unit,pct,color,goal])=>`<div class="nut-row"><div class="nut-top"><span>${label}</span><span>${val} ${unit} <span class="nut-pct">/ ${goal}${unit} (${Math.round(pct*100)}%)</span></span></div><div class="bar-bg"><div class="bar-fill" style="width:${Math.min(100,Math.round(pct*100))}%;background:${color}"></div></div></div>`).join("")+
     `<div style="margin-top:10px;font-size:12px;color:var(--text3)">Meals: ${dayMeals.map(m=>m.name).join(", ")}</div>`;
