@@ -293,14 +293,15 @@ function persist(){
 }
 
 function today(){
-  const d=new Date();
+  // Force Houston timezone (America/Chicago, CDT = UTC-5, CST = UTC-6)
+  const d=new Date(new Date().toLocaleString("en-US",{timeZone:"America/Chicago"}));
   const y=d.getFullYear();
   const m=String(d.getMonth()+1).padStart(2,"0");
   const day=String(d.getDate()).padStart(2,"0");
   return y+"-"+m+"-"+day;
 }
 function dateFromOffset(o){
-  const d=new Date();
+  const d=new Date(new Date().toLocaleString("en-US",{timeZone:"America/Chicago"}));
   d.setDate(d.getDate()+o);
   const y=d.getFullYear();
   const m=String(d.getMonth()+1).padStart(2,"0");
