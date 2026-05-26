@@ -604,15 +604,31 @@ let meals=JSON.parse(localStorage.getItem('mt_meals')||'[]');
 // Pre-fill known data if both are empty (fresh start)
 if(pantry.length===0&&meals.length===0&&!localStorage.getItem('mt_seeded')){
   pantry=[
-    {id:'p1',name:'Blueberry',img:'🫐',qty:908,left:808,unit:'g',costPer:0.009,cal:57,carbs:14.5,protein:0.7,fat:0.3},
-    {id:'p2',name:'Green onions',img:'🧅',qty:1,left:1,unit:'个',costPer:1.29,cal:25,carbs:1.1,protein:0.3,fat:0},
-    {id:'p3',name:'Whipped light cream',img:'🍦',qty:368,left:368,unit:'g',costPer:0.012,cal:257,carbs:14,protein:3,fat:22},
+    {id:'p1',name:'Blueberries',img:'🫐',qty:908,left:908,unit:'g',costPer:0.0088,cal:57,carbs:14.5,protein:0.7,fat:0.3},
+    {id:'p2',name:'Green Onions',img:'🧅',qty:170,left:170,unit:'g',costPer:0.0076,cal:32,carbs:7.3,protein:1.8,fat:0.2},
+    {id:'p3',name:'Whipped Cream',img:'🍦',qty:368,left:368,unit:'g',costPer:0.0122,cal:257,carbs:14,protein:3,fat:22},
     {id:'p4',name:'Fresh Squeezed Lemonade',img:'🍋',qty:1,left:1,unit:'个',costPer:3.99,cal:50,carbs:12.5,protein:0,fat:0},
+    {id:'p5',name:'Beef Shaved Steak',img:'🥩',qty:300,left:300,unit:'g',costPer:0.0333,cal:250,carbs:0,protein:26,fat:17},
+    {id:'p6',name:'Tofu Silken Organic',img:'🫘',qty:340,left:340,unit:'g',costPer:0.0073,cal:55,carbs:2,protein:5,fat:3},
+    {id:'p7',name:'Tofu Firm Organic',img:'🫘',qty:396,left:396,unit:'g',costPer:0.0063,cal:76,carbs:1.9,protein:8,fat:4.2},
+    {id:'p8',name:'Kimchi',img:'🥬',qty:340,left:340,unit:'g',costPer:0.0117,cal:15,carbs:2.4,protein:1.1,fat:0.5},
+    {id:'p9',name:'Chimichurri Sauce',img:'🫙',qty:240,left:240,unit:'g',costPer:0.0166,cal:120,carbs:2,protein:1,fat:12},
+    {id:'p10',name:'Baby Spinach',img:'🥬',qty:340,left:340,unit:'g',costPer:0.0073,cal:23,carbs:3.6,protein:2.9,fat:0.4},
+    {id:'p11',name:'Cilantro',img:'🌿',qty:50,left:50,unit:'g',costPer:0.0298,cal:23,carbs:3.7,protein:2.1,fat:0.5},
+    {id:'p12',name:'Belgian Butter Waffle',img:'🧇',qty:180,left:180,unit:'g',costPer:0.0183,cal:410,carbs:58,protein:5,fat:17},
+    {id:'p13',name:'Belgian Butter Almond Thins',img:'🍪',qty:180,left:180,unit:'g',costPer:0.0183,cal:480,carbs:62,protein:7,fat:23},
+    {id:'p14',name:'Sandwich Rolls',img:'🥖',qty:300,left:300,unit:'g',costPer:0.0116,cal:270,carbs:50,protein:9,fat:4},
+    {id:'p15',name:'Gala Apples',img:'🍎',qty:908,left:908,unit:'g',costPer:0.0033,cal:52,carbs:14,protein:0.3,fat:0.2},
+    {id:'p16',name:'Yellow Onion',img:'🧅',qty:200,left:200,unit:'g',costPer:0.005,cal:40,carbs:9.3,protein:1.1,fat:0.1},
+    {id:'p17',name:'Banana Organic',img:'🍌',qty:5,left:5,unit:'个',costPer:0.29,cal:89,carbs:23,protein:1.1,fat:0.3},
+    {id:'p18',name:'Burrata Filling',img:'🧀',qty:227,left:227,unit:'g',costPer:0.0198,cal:150,carbs:3,protein:10,fat:11},
+    {id:'p19',name:'Asparagus',img:'🌱',qty:408,left:408,unit:'g',costPer:0.0079,cal:20,carbs:3.7,protein:2.2,fat:0.1},
+    {id:'p20',name:'Cherries',img:'🍒',qty:1206,left:1206,unit:'g',costPer:0.0084,cal:50,carbs:12.2,protein:1,fat:0.3},
   ];
   meals=[
     {id:'m1',name:'Lunch',date:today(),type:'☀️',ingredients:[
-      {id:'i1',pantryId:null,name:'Burrata filling',img:'🧀',qty:15,unit:'g',cal:22,carbs:0.5,protein:1.5,fat:1.8,cost:0.3,isExtra:false},
-      {id:'i2',pantryId:null,name:'Sandwich Rollers',img:'🥪',qty:85,unit:'g',cal:215,carbs:38.3,protein:7.6,fat:3.9,cost:1.28,isExtra:false},
+      {id:'i1',pantryId:'p18',name:'Burrata Filling',img:'🧀',qty:15,unit:'g',cal:22,carbs:0.5,protein:1.5,fat:1.65,cost:0.3,isExtra:false},
+      {id:'i2',pantryId:'p14',name:'Sandwich Rolls',img:'🥖',qty:85,unit:'g',cal:230,carbs:42.5,protein:7.7,fat:3.4,cost:0.99,isExtra:false},
     ]},
   ];
   savePantry();saveMeals();
