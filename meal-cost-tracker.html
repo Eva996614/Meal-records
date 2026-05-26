@@ -755,18 +755,54 @@ function savePantryItem(){
   closeModal('modal-add-pantry');
 }
 
+// Compress image to max 200px, quality 0.7 — keeps localStorage small
+function compressImage(dataUrl, callback){
+  var img=new Image();
+  img.onload=function(){
+    var canvas=document.createElement('canvas');
+    var max=200;
+    var w=img.width,h=img.height;
+    if(w>h){if(w>max){h=Math.round(h*max/w);w=max;}}
+    else{if(h>max){w=Math.round(w*max/h);h=max;}}
+    canvas.width=w;canvas.height=h;
+    canvas.getContext('2d').drawImage(img,0,0,w,h);
+    callback(canvas.toDataURL('image/jpeg',0.7));
+  };
+  img.src=dataUrl;
+}
+
 function previewIngPhoto(input){
   const file=input.files[0];if(!file)return;
   const reader=new FileReader();
   reader.onload=function(e){
-    window._apImgBase64=e.target.result;
-    const preview=S('ap-img-preview');
-    preview.innerHTML='';
-    const img=document.createElement('img');
-    img.src=e.target.result;
-    img.style.cssText='width:100%;height:100%;object-fit:cover';
-    preview.appendChild(img);
-    S('ap-img').value='';
+    compressImage(e.target.result,function(compressed){
+      window._apImgBase64=compressed;
+      const preview=S('ap-img-preview');
+      preview.innerHTML='';
+      const img=document.createElement('img');
+      img.src=compressed;
+      img.style.cssText='width:100%;height:100%;object-fit:cover';
+      preview.appendChild(img);
+      S('ap-img').value='';
+    });
+  };
+  reader.readAsDataURL(file);
+}
+
+function previewEditIngPhoto(input){
+  const file=input.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=function(e){
+    compressImage(e.target.result,function(compressed){
+      window._epImgBase64=compressed;
+      const preview=S('ep-img-preview');
+      preview.innerHTML='';
+      const img=document.createElement('img');
+      img.src=compressed;
+      img.style.cssText='width:100%;height:100%;object-fit:cover';
+      preview.appendChild(img);
+      S('ep-img').value='';
+    });
   };
   reader.readAsDataURL(file);
 }
@@ -1889,21 +1925,7 @@ function importData(input){
   reader.readAsText(file);
 }
 
-function previewEditIngPhoto(input){
-  const file=input.files[0];if(!file)return;
-  const reader=new FileReader();
-  reader.onload=function(e){
-    window._epImgBase64=e.target.result;
-    const preview=S('ep-img-preview');
-    preview.innerHTML='';
-    const img=document.createElement('img');
-    img.src=e.target.result;
-    img.style.cssText='width:100%;height:100%;object-fit:cover';
-    preview.appendChild(img);
-    S('ep-img').value='';
-  };
-  reader.readAsDataURL(file);
-}
+
 
 function updateEditIngEmojiPreview(val){
   if(!val||window._epImgBase64)return;
