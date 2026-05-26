@@ -676,7 +676,7 @@ function renderPantry(){
     const cls=pct<20?'low':pct<50?'mid':'good';
     const tagCls=pct<20?'tag-low':pct<50?'tag-warn':'tag-good';
     const tagTxt=pct<20?'Low':pct<50?'Half':'Good';
-    const isUrl=p.img&&p.img.startsWith('http');
+    const isUrl=p.img&&(p.img.startsWith('http')||p.img.startsWith('data:'));
     const imgEl=isUrl
       ?`<img src="${p.img}" class="pantry-img" alt="${p.name}" onerror="this.outerHTML='<div class=pantry-img>🥄</div>'">`
       :`<div class="pantry-img">${p.img||'🥄'}</div>`;
@@ -903,7 +903,7 @@ function renderMeals(){
       </div>
       <div class="meal-details" id="mdet-${m.id}">
         ${ings.length?ings.map(ing=>{
-          const isUrl=ing.img&&ing.img.startsWith('http');
+          const isUrl=ing.img&&(ing.img.startsWith('http')||ing.img.startsWith('data:'));
           const imgEl=isUrl
             ?`<img src="${ing.img}" class="ing-img" alt="" onerror="this.outerHTML='<div class=ing-img>🥄</div>'">`
             :`<div class="ing-img">${ing.img||'🥄'}</div>`;
@@ -979,7 +979,7 @@ function renderTempIngList(containerId,ings){
   const el=S(containerId);if(!el)return;
   if(!ings.length){el.innerHTML='<div style="font-size:12px;color:var(--text3);padding:6px 0 10px">No ingredients added yet</div>';return;}
   el.innerHTML=ings.map((ing,i)=>{
-    const isUrl=ing.img&&ing.img.startsWith('http');
+    const isUrl=ing.img&&(ing.img.startsWith('http')||ing.img.startsWith('data:'));
     const imgEl=isUrl?`<img src="${ing.img}" class="added-ing-img" alt="">`:`<div class="added-ing-img">${ing.img||'🥄'}</div>`;
     return`<div class="added-ing-row">
       ${imgEl}
@@ -1066,7 +1066,7 @@ function renderPantryOptions(q){
   const filtered=pantry.filter(p=>p.name.toLowerCase().includes(q));
   if(!filtered.length){el.innerHTML='<div style="padding:14px;font-size:13px;color:var(--text3)">No matching items</div>';return;}
   el.innerHTML=filtered.map(p=>{
-    const isUrl=p.img&&p.img.startsWith('http');
+    const isUrl=p.img&&(p.img.startsWith('http')||p.img.startsWith('data:'));
     const imgEl=isUrl?`<img src="${p.img}" class="ing-opt-img" alt="" onerror="this.outerHTML='<div class=ing-opt-img>🥄</div>'">`:`<div class="ing-opt-img">${p.img||'🥄'}</div>`;
     const low=p.left<p.qty*0.2;
     return`<div class="ing-option" id="opt-${p.id}" onclick="selectPantryOption('${p.id}')">
