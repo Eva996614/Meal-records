@@ -197,6 +197,15 @@ input:focus,select:focus{border-color:var(--g400);box-shadow:0 0 0 3px rgba(45,1
           <i class="ti ti-plus"></i> Add Ingredient
         </button>
       </div>
+      <div style="display:flex;gap:8px;padding:4px 0 8px;justify-content:center">
+        <button class="btn btn-ghost btn-sm" onclick="exportData()">
+          <i class="ti ti-download"></i> Export backup
+        </button>
+        <label class="btn btn-ghost btn-sm" style="cursor:pointer">
+          <i class="ti ti-upload"></i> Import backup
+          <input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(this)">
+        </label>
+      </div>
     </div>
 
     <!-- LOG MEAL -->
@@ -622,6 +631,24 @@ loadState();
 
 let pantry=JSON.parse(localStorage.getItem('mt_pantry')||'[]');
 let meals=JSON.parse(localStorage.getItem('mt_meals')||'[]');
+
+// Pre-fill known data if both are empty (fresh start)
+if(pantry.length===0&&meals.length===0&&!localStorage.getItem('mt_seeded')){
+  pantry=[
+    {id:'p1',name:'Blueberry',img:'🫐',qty:908,left:808,unit:'g',costPer:0.009,cal:57,carbs:14.5,protein:0.7,fat:0.3},
+    {id:'p2',name:'Green onions',img:'🧅',qty:1,left:1,unit:'个',costPer:1.29,cal:25,carbs:1.1,protein:0.3,fat:0},
+    {id:'p3',name:'Whipped light cream',img:'🍦',qty:368,left:368,unit:'g',costPer:0.012,cal:257,carbs:14,protein:3,fat:22},
+    {id:'p4',name:'Fresh Squeezed Lemonade',img:'🍋',qty:1,left:1,unit:'个',costPer:3.99,cal:50,carbs:12.5,protein:0,fat:0},
+  ];
+  meals=[
+    {id:'m1',name:'Lunch',date:today(),type:'☀️',ingredients:[
+      {id:'i1',pantryId:null,name:'Burrata filling',img:'🧀',qty:15,unit:'g',cal:22,carbs:0.5,protein:1.5,fat:1.8,cost:0.3,isExtra:false},
+      {id:'i2',pantryId:null,name:'Sandwich Rollers',img:'🥪',qty:85,unit:'g',cal:215,carbs:38.3,protein:7.6,fat:3.9,cost:1.28,isExtra:false},
+    ]},
+  ];
+  savePantry();saveMeals();
+  localStorage.setItem('mt_seeded','1');
+}
 let goals=JSON.parse(localStorage.getItem('mt_goals')||'{"cal":1200,"carbs":128,"protein":82,"fat":40}');
 let body=JSON.parse(localStorage.getItem('mt_body')||'{"weight":51,"height":153,"age":30,"sex":"F"}');
 
@@ -1763,6 +1790,58 @@ function attemptDataRecovery(){
     renderPantry();
     alert('Recovery complete! Found '+pantry.length+' pantry items and '+meals.length+' meals.');
   }
+}
+
+// ── EXPORT / IMPORT BACKUP ──
+function exportData(){
+  var data={
+    mt_pantry:pantry,
+    mt_meals:meals,
+    mt_goals:goals,
+    mt_body:body,
+    exported:new Date().toISOString()
+  };
+  var blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');
+  a.href=url;
+  a.download='meal-tracker-backup-'+new Date().toISOString().slice(0,10)+'.json';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function importData(input){
+  var file=input.files[0];
+  if(!file)return;
+  var reader=new FileReader();
+  reader.onload=function(e){
+    try{
+      var data=JSON.parse(e.target.result);
+      if(data.mt_pantry&&Array.isArray(data.mt_pantry)){
+        pantry=data.mt_pantry;
+        localStorage.setItem('mt_pantry',JSON.stringify(pantry));
+      }
+      if(data.mt_meals&&Array.isArray(data.mt_meals)){
+        meals=data.mt_meals;
+        localStorage.setItem('mt_meals',JSON.stringify(meals));
+      }
+      if(data.mt_goals){
+        goals=data.mt_goals;
+        localStorage.setItem('mt_goals',JSON.stringify(goals));
+      }
+      if(data.mt_body){
+        body=data.mt_body;
+        localStorage.setItem('mt_body',JSON.stringify(body));
+      }
+      localStorage.setItem('mt_seeded','1');
+      renderPantry();
+      renderMeals();
+      alert('Import successful!\n'+pantry.length+' pantry items and '+meals.length+' meals restored.');
+    }catch(err){
+      alert('Import failed: '+err.message);
+    }
+  };
+  reader.readAsText(file);
 }
 </script>
 </body>
