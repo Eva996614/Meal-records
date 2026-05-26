@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Data Recovery</title>
+<style>
+body{font-family:sans-serif;padding:20px;background:#f5f7f5;color:#1a1f1c}
+h2{color:#1a7a4a;margin-bottom:16px}
+.card{background:#fff;border-radius:12px;padding:16px;margin-bottom:12px;border:1px solid #e0e0e0}
+.key{font-weight:700;color:#1a7a4a;font-size:14px}
+.val{font-size:12px;color:#666;word-break:break-all;margin-top:6px;max-height:120px;overflow:auto}
+.count{background:#2db56e;color:#fff;border-radius:10px;padding:2px 8px;font-size:12px;margin-left:8px}
+.btn{display:block;width:100%;padding:14px;background:#2db56e;color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;margin-bottom:10px;cursor:pointer}
+.btn-outline{background:#fff;color:#1a7a4a;border:2px solid #2db56e}
+.empty{color:#999;text-align:center;padding:20px}
+pre{white-space:pre-wrap;font-size:11px}
+</style>
+</head>
+<body>
+<h2>🔍 Data Recovery Tool</h2>
+<div id="output"></div>
+<button class="btn" onclick="scanAll()">Scan All Data</button>
+<button class="btn btn-outline" onclick="copyAll()">Copy All Data</button>
+<div id="restore-section" style="display:none">
+  <button class="btn" style="background:#e65100" onclick="restoreData()">✓ Restore Found Data to Meal Tracker</button>
+</div>
+
+<script>
+var found = {};
+
+function scanAll() {
+  var out = document.getElementById('output');
+  var count = localStorage.length;
+  
+  if (count === 0) {
+    out.innerHTML = '<div class="empty">⚠️ localStorage is completely empty in this browser.<br><br>Your data was saved in a different browser or was cleared.</div>';
+    return;
+  }
+
+  var html = '<div class="card" style="background:#e8f4ee"><b>Found ' + count + ' items in localStorage:</b></div>';
+  found = {};
+  
+  for (var i = 0; i < localStorage.length; i++) {
+    var k = localStorage.key(i);
+    var v = localStorage.getItem(k);
+    var display = v;
+    var itemCount = '';
+    
+    try {
+      var parsed = JSON.parse(v);
+      if (Array.isArray(parsed)) {
+        itemCount = '<span class="count">' + parsed.length + ' records</span>';
+        found[k] = parsed;
+        display = JSON.stringify(parsed[0], null, 2);
+        if (parsed.length > 1) display += '\n... and ' + (parsed.length-1) + ' more';
+      } else if (typeof parsed === 'object') {
+        display = JSON.stringify(parsed, null, 2);
+      }
+    } catch(e) {}
+    
+    html += '<div class="card"><div class="key">' + k + itemCount + '</div><div class="val"><pre>' + display.substring(0,300) + '</pre></div></div>';
+  }
+  
+  out.innerHTML = html;
+  
+  if (Object.keys(found).length > 0) {
+    document.getElementById('restore-section').style.display = 'block';
+  }
+}
+
+function copyAll() {
+  var all = {};
+  for (var i = 0; i < localStorage.length; i++) {
+    var k = localStorage.key(i);
+    all[k] = localStorage.getItem(k);
+  }
+  var text = JSON.stringify(all, null, 2);
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text).then(function(){ alert('Copied! Send this to Claude.'); });
+  } else {
+    prompt('Copy this data:', text);
+  }
+}
+
+function normP(p) {
+  return {
+    id: p.id || ('p'+Date.now()+Math.random()),
+    name: p.name || p.ingredient || p.item || '',
+    img: p.img || p.icon || p.emoji || '🥄',
+    qty: parseFloat(p.qty||p.totalQty||p.amount||p.total||0),
+    left: parseFloat(p.left||p.remaining||p.qty||p.totalQty||p.amount||0),
+    unit: p.unit || 'g',
+    costPer: parseFloat(p.costPer||p.pricePerUnit||p.cost||p.price||0),
+    cal: parseFloat(p.cal||p.calories||p.kcal||0),
+    carbs: parseFloat(p.carbs||p.carbohydrates||0),
+    protein: parseFloat(p.protein||0),
+    fat: parseFloat(p.fat||0)
+  };
+}
+
+function normM(m) {
+  return {
+    id: m.id || ('m'+Date.now()+Math.random()),
+    name: m.name || m.mealName || 'Meal',
+    date: m.date || new Date().toISOString().slice(0,10),
+    type: m.type || '🍽️',
+    ingredients: (m.ingredients||m.items||m.foods||[]).map(function(ing){
+      return {
+        id: ing.id||('i'+Date.now()+Math.random()),
+        pantryId: ing.pantryId||null,
+        name: ing.name||'', img: ing.img||'🥄',
+        qty: parseFloat(ing.qty||ing.amount||0), unit: ing.unit||'g',
+        cal: parseFloat(ing.cal||ing.calories||0),
+        carbs: parseFloat(ing.carbs||0), protein: parseFloat(ing.protein||0),
+        fat: parseFloat(ing.fat||0), cost: parseFloat(ing.cost||0),
+        isExtra: ing.isExtra||false
+      };
+    })
+  };
+}
+
+function restoreData() {
+  var pantryRestored = 0, mealsRestored = 0;
+  
+  // Try all found keys
+  for (var k in found) {
+    var data = found[k];
+    if (!Array.isArray(data) || data.length === 0) continue;
+    var first = data[0];
+    
+    // Looks like pantry?
+    if (!localStorage.getItem('mt_pantry') || JSON.parse(localStorage.getItem('mt_pantry')).length === 0) {
+      if (first && (first.name||first.ingredient) && (first.cal||first.qty||first.amount||first.calories)) {
+        localStorage.setItem('mt_pantry', JSON.stringify(data.map(normP)));
+        pantryRestored = data.length;
+      }
+    }
+    // Looks like meals?
+    if (!localStorage.getItem('mt_meals') || JSON.parse(localStorage.getItem('mt_meals')).length === 0) {
+      if (first && (first.name||first.mealName) && (first.date||first.ingredients||first.items)) {
+        localStorage.setItem('mt_meals', JSON.stringify(data.map(normM)));
+        mealsRestored = data.length;
+      }
+    }
+  }
+  
+  alert('Restored: ' + pantryRestored + ' pantry items, ' + mealsRestored + ' meals.\n\nGo back to Meal Tracker now!');
+  window.location.href = 'https://raw.githack.com/Eva996614/Meal-records/main/meal-cost-tracker.html?v=3';
+}
+
+// Auto-scan on load
+window.onload = scanAll;
+</script>
+</body></html>
