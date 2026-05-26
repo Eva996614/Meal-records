@@ -303,36 +303,21 @@ input:focus,select:focus{border-color:var(--g400);box-shadow:0 0 0 3px rgba(45,1
       </div>
     </div>
 
-
-    <!-- AI Photo Estimation -->
-    <div style="margin-bottom:14px">
-      <label style="display:flex;align-items:center;justify-content:center;gap:8px;padding:11px;background:linear-gradient(135deg,#7c3aed,#4f46e5);color:#fff;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;margin-bottom:8px" id="ai-photo-label">
-        <i class="ti ti-sparkles" style="font-size:16px"></i>
-        AI Estimate Nutrition (photo)
-        <input type="file" id="ai-photo-input" accept="image/*" capture="environment" style="display:none" onchange="handleAIPhoto(this)">
-      </label>
-      <!-- preview + result -->
-      <div id="ai-photo-preview-wrap" style="display:none;margin-bottom:8px;border-radius:10px;overflow:hidden;position:relative;max-height:200px">
-        <img id="ai-photo-preview" style="width:100%;object-fit:cover;max-height:200px;display:block" alt="Food photo">
-        <button onclick="clearAIPhoto()" style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,.55);border:none;color:#fff;border-radius:50%;width:26px;height:26px;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center"><i class="ti ti-x"></i></button>
-      </div>
-      <div id="ai-status" style="display:none;padding:10px 12px;border-radius:8px;font-size:12px;text-align:center">
-        <div id="ai-spinner" style="display:none">
-          <div style="width:20px;height:20px;border:2px solid var(--g100);border-top-color:var(--g400);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 6px"></div>
-          <div style="color:var(--text3)">AI正在分析食物...</div>
-        </div>
-        <div id="ai-result-text" style="color:var(--g800);line-height:1.6;text-align:left"></div>
-      </div>
-    </div>
-
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
-      <div style="flex:1;height:0.5px;background:var(--border)"></div>
-      <span style="font-size:11px;color:var(--text3);font-weight:600">OR ENTER MANUALLY</span>
-      <div style="flex:1;height:0.5px;background:var(--border)"></div>
-    </div>
-
     <div class="form-group"><label class="form-label">Name</label><input type="text" id="ap-name" placeholder="e.g. Blueberry"></div>
-    <div class="form-group"><label class="form-label">Photo (emoji or image URL)</label><input type="text" id="ap-img" placeholder="🫐 or paste image URL"></div>
+    <!-- Photo: upload real image OR emoji -->
+    <div class="form-group">
+      <label class="form-label">Photo</label>
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px">
+        <div id="ap-img-preview" style="width:52px;height:52px;border-radius:8px;background:var(--surface2);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0;overflow:hidden">🥄</div>
+        <div style="flex:1">
+          <label style="display:flex;align-items:center;gap:6px;padding:8px 10px;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;color:var(--text2);margin-bottom:6px">
+            <i class="ti ti-camera" style="font-size:15px"></i> Take / Upload photo
+            <input type="file" id="ap-img-file" accept="image/*" style="display:none" onchange="previewIngPhoto(this)">
+          </label>
+          <input type="text" id="ap-img" placeholder="or type emoji: 🫐" oninput="updateIngEmojiPreview(this.value)" style="font-size:13px">
+        </div>
+      </div>
+    </div>
     <div class="form-grid">
       <div class="form-group"><label class="form-label">Quantity</label><input type="number" id="ap-qty" placeholder="908" min="0"></div>
       <div class="form-group"><label class="form-label">Unit</label>
@@ -403,22 +388,6 @@ input:focus,select:focus{border-color:var(--g400);box-shadow:0 0 0 3px rgba(45,1
     <div style="display:flex;gap:6px;margin-bottom:8px">
       <button class="btn btn-outline btn-sm" onclick="openIngSelector(false,false)"><i class="ti ti-package"></i> From Pantry</button>
       <button class="btn btn-ghost btn-sm" onclick="openIngSelector(true,false)"><i class="ti ti-pencil"></i> Manual Entry</button>
-    </div>
-    <!-- AI estimate for dining out -->
-    <label style="display:flex;align-items:center;justify-content:center;gap:7px;padding:9px;background:linear-gradient(135deg,#7c3aed,#4f46e5);color:#fff;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;margin-bottom:14px" id="meal-ai-label">
-      <i class="ti ti-sparkles" style="font-size:15px"></i> AI Estimate (dining out — snap a photo)
-      <input type="file" id="meal-ai-input" accept="image/*" capture="environment" style="display:none" onchange="handleMealAIPhoto(this)">
-    </label>
-    <div id="meal-ai-preview-wrap" style="display:none;margin-bottom:8px;border-radius:10px;overflow:hidden;position:relative;max-height:160px">
-      <img id="meal-ai-preview" style="width:100%;object-fit:cover;max-height:160px;display:block" alt="">
-      <button onclick="clearMealAIPhoto()" style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,.55);border:none;color:#fff;border-radius:50%;width:26px;height:26px;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center"><i class="ti ti-x"></i></button>
-    </div>
-    <div id="meal-ai-status" style="display:none;padding:10px 12px;border-radius:8px;font-size:12px;background:var(--surface2);margin-bottom:8px">
-      <div id="meal-ai-spinner" style="display:none;text-align:center">
-        <div style="width:18px;height:18px;border:2px solid var(--g100);border-top-color:var(--g400);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 5px"></div>
-        <div style="color:var(--text3);font-size:11px">Analysing your meal…</div>
-      </div>
-      <div id="meal-ai-result" style="color:var(--g800);line-height:1.6"></div>
     </div>
     <button class="btn btn-primary" style="width:100%;justify-content:center;padding:12px" onclick="saveMeal()">
       <i class="ti ti-check"></i> Save Meal
@@ -729,15 +698,22 @@ let editPantryId=null;
 function openAddPantry(){
   ['ap-name','ap-img','ap-cost','ap-qty','ap-cal','ap-carbs','ap-protein','ap-fat'].forEach(id=>S(id).value='');
   S('ap-unit').value='g';
+  window._apImgBase64=null;
+  const preview=S('ap-img-preview');
+  if(preview){preview.innerHTML='🥄';}
+  const fileInput=S('ap-img-file');
+  if(fileInput)fileInput.value='';
   S('modal-add-pantry').classList.remove('hidden');
 }
 function savePantryItem(){
   const name=S('ap-name').value.trim();
   if(!name){alert('Please enter a name');return;}
   const qty=parseFloat(S('ap-qty').value)||0;
+  // Use uploaded base64 image if available, else emoji/text
+  const imgSrc=window._apImgBase64||S('ap-img').value.trim()||'🥄';
   pantry.push({
     id:'p'+Date.now(),name,
-    img:S('ap-img').value.trim()||'🥄',
+    img:imgSrc,
     qty,left:qty,
     unit:S('ap-unit').value,
     costPer:parseFloat(S('ap-cost').value)||0,
@@ -746,8 +722,30 @@ function savePantryItem(){
     protein:parseFloat(S('ap-protein').value)||0,
     fat:parseFloat(S('ap-fat').value)||0
   });
+  window._apImgBase64=null;
   savePantry();renderPantry();
   closeModal('modal-add-pantry');
+}
+
+function previewIngPhoto(input){
+  const file=input.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=function(e){
+    window._apImgBase64=e.target.result;
+    const preview=S('ap-img-preview');
+    preview.innerHTML='';
+    const img=document.createElement('img');
+    img.src=e.target.result;
+    img.style.cssText='width:100%;height:100%;object-fit:cover';
+    preview.appendChild(img);
+    S('ap-img').value='';
+  };
+  reader.readAsDataURL(file);
+}
+
+function updateIngEmojiPreview(val){
+  if(!val||window._apImgBase64)return;
+  S('ap-img-preview').innerHTML=val||'🥄';
 }
 function openEditPantry(id){
   const p=pantry.find(x=>x.id===id);if(!p)return;
