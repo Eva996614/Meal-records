@@ -506,58 +506,117 @@ const fmt2=v=>parseFloat((+v||0).toFixed(2));
 const fmt1=v=>parseFloat((+v||0).toFixed(1));
 
 // ── STATE (with localStorage migration) ──
+function normalisePantryItem(p){
+  return {
+    id:p.id||('p'+Date.now()+Math.random()),
+    name:p.name||p.ingredient||p.item||'',
+    img:p.img||p.icon||p.emoji||p.image||'🥄',
+    qty:parseFloat(p.qty||p.totalQty||p.amount||p.total||0),
+    left:parseFloat(p.left||p.remaining||p.qty||p.totalQty||p.amount||p.total||0),
+    unit:p.unit||'g',
+    costPer:parseFloat(p.costPer||p.pricePerUnit||p.costPerUnit||p.price||p.cost||0),
+    cal:parseFloat(p.cal||p.calories||p.kcal||0),
+    carbs:parseFloat(p.carbs||p.carbohydrates||p.carb||0),
+    protein:parseFloat(p.protein||p.proteins||0),
+    fat:parseFloat(p.fat||p.fats||0)
+  };
+}
+function normaliseMeal(m){
+  return {
+    id:m.id||('m'+Date.now()+Math.random()),
+    name:m.name||m.mealName||m.title||'Meal',
+    date:m.date||m.logDate||today(),
+    type:m.type||m.mealType||'🍽️',
+    ingredients:(m.ingredients||m.items||m.foods||[]).map(ing=>({
+      id:ing.id||('i'+Date.now()+Math.random()),
+      pantryId:ing.pantryId||null,
+      name:ing.name||ing.food||'',
+      img:ing.img||ing.icon||ing.emoji||'🥄',
+      qty:parseFloat(ing.qty||ing.amount||ing.grams||0),
+      unit:ing.unit||'g',
+      cal:parseFloat(ing.cal||ing.calories||ing.kcal||0),
+      carbs:parseFloat(ing.carbs||ing.carbohydrates||0),
+      protein:parseFloat(ing.protein||0),
+      fat:parseFloat(ing.fat||0),
+      cost:parseFloat(ing.cost||0),
+      isExtra:ing.isExtra||false
+    }))
+  };
+}
+
 function loadState(){
-  // Try to migrate from old key names used in previous versions
-  const OLD_KEYS=['mc_pantry','mc_meals'];
-  const NEW_KEYS=['mt_pantry','mt_meals'];
-  OLD_KEYS.forEach((ok,i)=>{
-    if(localStorage.getItem(ok)&&!localStorage.getItem(NEW_KEYS[i])){
-      // Migrate: map old schema fields to new schema
+  // Scan ALL localStorage keys to find any meal/pantry data from any version
+  const allKeys=[];
+  for(let i=0;i<localStorage.length;i++) allKeys.push(localStorage.key(i));
+  console.log('All localStorage keys found:', allKeys);
+
+  // Already have new-format data → done
+  if(localStorage.getItem('mt_pantry')&&JSON.parse(localStorage.getItem('mt_pantry')).length>0) return;
+  if(localStorage.getItem('mt_meals')&&JSON.parse(localStorage.getItem('mt_meals')).length>0) return;
+
+  // Try every possible key name for pantry
+  const pantryKeys=['mc_pantry','pantry','ingredients','stock','mc_ingredients',
+    'meal_pantry','mealPantry','tracker_pantry','food_pantry','foodItems',
+    'meal-pantry','meal-tracker-pantry'];
+  for(const k of pantryKeys){
+    const raw=localStorage.getItem(k);
+    if(raw){
       try{
-        const raw=JSON.parse(localStorage.getItem(ok));
-        // Old pantry items may have different field names — normalise
-        if(i===0&&Array.isArray(raw)){
-          const migrated=raw.map(p=>({
-            id:p.id||('p'+Date.now()+Math.random()),
-            name:p.name||p.ingredient||'',
-            img:p.img||p.icon||p.emoji||'🥄',
-            qty:parseFloat(p.qty||p.totalQty||p.amount||0),
-            left:parseFloat(p.left||p.remaining||p.qty||p.totalQty||0),
-            unit:p.unit||'g',
-            costPer:parseFloat(p.costPer||p.pricePerUnit||p.cost||0),
-            cal:parseFloat(p.cal||p.calories||0),
-            carbs:parseFloat(p.carbs||p.carbohydrates||0),
-            protein:parseFloat(p.protein||0),
-            fat:parseFloat(p.fat||0)
-          }));
-          localStorage.setItem(NEW_KEYS[i],JSON.stringify(migrated));
-        } else if(i===1&&Array.isArray(raw)){
-          // Migrate meals
-          const migrated=raw.map(m=>({
-            id:m.id||('m'+Date.now()+Math.random()),
-            name:m.name||m.mealName||'Meal',
-            date:m.date||today(),
-            type:m.type||m.mealType||'🍽️',
-            ingredients:(m.ingredients||m.items||[]).map(ing=>({
-              id:ing.id||('i'+Date.now()+Math.random()),
-              pantryId:ing.pantryId||null,
-              name:ing.name||'',
-              img:ing.img||ing.icon||'🥄',
-              qty:parseFloat(ing.qty||ing.amount||0),
-              unit:ing.unit||'g',
-              cal:parseFloat(ing.cal||ing.calories||0),
-              carbs:parseFloat(ing.carbs||0),
-              protein:parseFloat(ing.protein||0),
-              fat:parseFloat(ing.fat||0),
-              cost:parseFloat(ing.cost||0),
-              isExtra:ing.isExtra||false
-            }))
-          }));
-          localStorage.setItem(NEW_KEYS[i],JSON.stringify(migrated));
+        const data=JSON.parse(raw);
+        if(Array.isArray(data)&&data.length>0){
+          console.log('Found pantry data in key:', k, data.length, 'items');
+          const migrated=data.map(normalisePantryItem);
+          localStorage.setItem('mt_pantry',JSON.stringify(migrated));
+          break;
         }
-      }catch(e){console.warn('Migration failed',e)}
+      }catch(e){}
     }
-  });
+  }
+
+  // Try every possible key name for meals
+  const mealKeys=['mc_meals','meals','mealLog','meal_log','records',
+    'mc_records','tracker_meals','mealRecords','meal-log','meal-records',
+    'meal-tracker-meals','logged_meals','loggedMeals'];
+  for(const k of mealKeys){
+    const raw=localStorage.getItem(k);
+    if(raw){
+      try{
+        const data=JSON.parse(raw);
+        if(Array.isArray(data)&&data.length>0){
+          console.log('Found meals data in key:', k, data.length, 'meals');
+          const migrated=data.map(normaliseMeal);
+          localStorage.setItem('mt_meals',JSON.stringify(migrated));
+          break;
+        }
+      }catch(e){}
+    }
+  }
+
+  // Also check for any key that looks like it has array data with food-like properties
+  for(const k of allKeys){
+    if(['mt_pantry','mt_meals','mt_goals','mt_body'].includes(k)) continue;
+    const raw=localStorage.getItem(k);
+    if(!raw) continue;
+    try{
+      const data=JSON.parse(raw);
+      if(!Array.isArray(data)||data.length===0) continue;
+      const first=data[0];
+      // Looks like pantry item?
+      if(!localStorage.getItem('mt_pantry')||JSON.parse(localStorage.getItem('mt_pantry')).length===0){
+        if(first&&(first.name||first.ingredient)&&(first.cal||first.calories||first.qty||first.amount)){
+          console.log('Found possible pantry in unknown key:', k, data.length, 'items');
+          localStorage.setItem('mt_pantry',JSON.stringify(data.map(normalisePantryItem)));
+        }
+      }
+      // Looks like meal?
+      if(!localStorage.getItem('mt_meals')||JSON.parse(localStorage.getItem('mt_meals')).length===0){
+        if(first&&(first.name||first.mealName)&&(first.date||first.ingredients||first.items)){
+          console.log('Found possible meals in unknown key:', k, data.length, 'meals');
+          localStorage.setItem('mt_meals',JSON.stringify(data.map(normaliseMeal)));
+        }
+      }
+    }catch(e){}
+  }
 }
 loadState();
 
@@ -1675,6 +1734,36 @@ function clearMealAIPhoto(){
   window._lastMealAIResult=null;
 }
 
+
+// ── MANUAL DATA RECOVERY ──
+function attemptDataRecovery(){
+  const allKeys=[];
+  for(let i=0;i<localStorage.length;i++) allKeys.push(localStorage.key(i));
+  let found=[];
+  allKeys.forEach(function(k){
+    const raw=localStorage.getItem(k);
+    if(!raw)return;
+    try{
+      const data=JSON.parse(raw);
+      if(Array.isArray(data)&&data.length>0){
+        found.push(k+' ('+data.length+' items)');
+      }
+    }catch(e){}
+  });
+  if(found.length===0){
+    alert('No recoverable data found in this browser.\n\nAll localStorage keys: '+allKeys.join(', ')||'(none)');
+  } else {
+    alert('Found data in keys:\n'+found.join('\n')+'\n\nReloading to attempt recovery…');
+    // Force re-run loadState by clearing new keys temporarily
+    localStorage.removeItem('mt_pantry');
+    localStorage.removeItem('mt_meals');
+    loadState();
+    pantry=JSON.parse(localStorage.getItem('mt_pantry')||'[]');
+    meals=JSON.parse(localStorage.getItem('mt_meals')||'[]');
+    renderPantry();
+    alert('Recovery complete! Found '+pantry.length+' pantry items and '+meals.length+' meals.');
+  }
+}
 </script>
 </body>
 </html>
