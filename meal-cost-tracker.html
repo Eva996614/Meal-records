@@ -492,7 +492,10 @@ input:focus,select:focus{border-color:var(--g400);box-shadow:0 0 0 3px rgba(45,1
 <script>
 // ── HELPERS ──
 const S=id=>document.getElementById(id);
-const today=()=>new Date().toISOString().slice(0,10);
+const today=()=>{
+  const d=new Date();
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+};
 const fmt2=v=>parseFloat((+v||0).toFixed(2));
 const fmt1=v=>parseFloat((+v||0).toFixed(1));
 
@@ -1245,11 +1248,11 @@ function buildBudgetCard(allTotals){
   var weekCost=0;
   for(var i=0;i<7;i++){
     var d2=new Date();d2.setDate(d2.getDate()-i);
-    var ds2=d2.toISOString().slice(0,10);
+    var ds2=d2.getFullYear()+'-'+String(d2.getMonth()+1).padStart(2,'0')+'-'+String(d2.getDate()).padStart(2,'0');
     meals.filter(function(m){return m.date===ds2;}).forEach(function(m){weekCost+=calcMealTotals(m).cost;});
   }
   var now=new Date();
-  var monthStart=new Date(now.getFullYear(),now.getMonth(),1).toISOString().slice(0,10);
+  var monthStart=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-01';
   var monthCost=meals.filter(function(m){return m.date>=monthStart;}).reduce(function(a,m){return a+calcMealTotals(m).cost;},0);
   var rows=[['Today',todayCost,dailyBudget],['This Week',weekCost,weeklyBudget],['This Month',monthCost,monthlyBudget]];
   var rowsHtml=rows.map(function(r){
@@ -1328,7 +1331,7 @@ function renderStats(){
   var pctCal=Math.min(100,Math.round((allTotals.cal/goals.cal)*100));
   var days=[0,1,2,3,4,5,6].map(function(i){
     var d=new Date();d.setDate(d.getDate()-(6-i));
-    var ds=d.toISOString().slice(0,10);
+    var ds=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
     var tot=meals.filter(function(m){return m.date===ds;}).reduce(function(a,m){return a+calcMealTotals(m).cal;},0);
     return{label:d.toLocaleDateString('en-US',{weekday:'short'}),ds:ds,cal:tot};
   });
