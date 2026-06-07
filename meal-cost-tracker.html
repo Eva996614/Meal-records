@@ -1099,7 +1099,7 @@ function openIngSelector(manual,forExtra){
 function filterPantryOptions(){renderPantryOptions(S('ing-search').value.toLowerCase())}
 function renderPantryOptions(q){
   const el=S('ing-options');
-  const filtered=pantry.filter(p=>p.name.toLowerCase().includes(q));
+  const filtered=pantry.filter(p=>p.name.toLowerCase().includes(q)&&!p.archived&&p.left>0);
   if(!filtered.length){el.innerHTML='<div style="padding:14px;font-size:13px;color:var(--text3)">No matching items</div>';return;}
   el.innerHTML=filtered.map(p=>{
     const isUrl=p.img&&(p.img.startsWith('http')||p.img.startsWith('data:'));
